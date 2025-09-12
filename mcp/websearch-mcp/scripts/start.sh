@@ -1,0 +1,1 @@
+uv run fastmcp run app/main.py

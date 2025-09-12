@@ -1,0 +1,14 @@
+[project]
+name = "server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.116.1",
+    "fastmcp>=2.12.2",
+    "langchain>=0.3.27",
+    "langchain-openai>=0.3.33",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.10.1",
+]
