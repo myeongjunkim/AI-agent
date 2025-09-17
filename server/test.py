@@ -8,8 +8,9 @@ from pathlib import Path
 client = Client({
   "mcpServers": {
       "websearch-mcp": {
-        "command": "python",
-        "args": ["../mcp/websearch-mcp/app/main.py"]
+        "command": "uv",
+        "args": ["uv","run", "fastmcp", "run", "../mcp/websearch-mcp/app/main.py"],
+        "cwd": "../mcp/websearch-mcp"
       }
   }
 })

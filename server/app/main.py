@@ -8,11 +8,12 @@ import uvicorn
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    config = {
+    config ={
         "mcpServers": {
-                "websearch-mcp": {
-                "command": "python",
-                "args": ["../mcp/websearch-mcp/app/main.py"],
+            "websearch-mcp": {
+                "command": "uv",
+                "args": ["uv","run", "fastmcp", "run", "app/main.py"],
+                "cwd": "../mcp/websearch-mcp"
             }
         }
     }
