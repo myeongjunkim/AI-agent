@@ -1,0 +1,18 @@
+{
+  "websearch-mcp": {
+    "transport": "stdio",
+    "command": "uv",
+    "args": ["run", "fastmcp", "run", "app/main.py"],
+    "cwd": "../mcp/websearch-mcp",
+    "env": {
+      "OPENAI_API_KEY": "",
+      "OPENAI_BASE_URL": "",
+      "GOOGLE_SEARCH_API_KEY": "",
+      "GOOGLE_CX_ID": "",
+      "NAVER_CLIENT_ID": "",
+      "NAVER_CLIENT_SECRET": "",
+      "LAW_OC": "",
+      "DART_API_KEY": ""
+    }
+  }
+}

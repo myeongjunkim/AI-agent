@@ -11,4 +11,4 @@ wheels/
 
 # Environment variables
 .env
-.mcp.json
+mcp.json

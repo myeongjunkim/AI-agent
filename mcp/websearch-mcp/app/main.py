@@ -1,6 +1,6 @@
 from fastmcp import FastMCP
-from .tools.search_tool import SearchTool
-from .tools.schema import SearchRequest, SearchResponse
+from app.tools.search_tool import SearchTool
+from app.tools.schema import SearchRequest, SearchResponse
 
 mcp = FastMCP(
     name="Websearch MCP",
