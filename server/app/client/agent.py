@@ -1,8 +1,11 @@
-
 from langchain_openai import ChatOpenAI
-from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_mcp_adapters.client import MultiServerMCPClient  # type: ignore
 from langchain_core.messages import SystemMessage
+from langgraph.graph.state import RunnableConfig
 from langgraph.prebuilt import create_react_agent
+from langfuse.langchain import CallbackHandler
+import os
+from app._core.config import settings
 from datetime import datetime
 
 class MCPAgent:
@@ -30,11 +33,17 @@ class MCPAgent:
         self.llm = llm
         self.mcp = mcp
 
+        os.environ.setdefault("LANGFUSE_PUBLIC_KEY", settings.LANGFUSE_PUBLIC_KEY)
+        os.environ.setdefault("LANGFUSE_SECRET_KEY", settings.LANGFUSE_SECRET_KEY)
+        os.environ.setdefault("LANGFUSE_HOST", settings.LANGFUSE_HOST)
+        self.langfuse_handler = CallbackHandler()
+
     async def chat(self, query: str):
         tools = await self.mcp.get_tools()
         prompt = SystemMessage(content=self.prompt)
         agent = create_react_agent(self.llm, tools, prompt=prompt)
-        return await agent.ainvoke({"messages": query})
+        config = RunnableConfig(callbacks=[self.langfuse_handler])
+        return await agent.ainvoke({"messages": query}, config=config)
 
     
 

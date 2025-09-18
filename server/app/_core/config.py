@@ -6,9 +6,13 @@ class Settings(BaseSettings):
         env_ignore_empty=True,
         extra="ignore",
     )
-    OPENAI_API_KEY: str
+    OPENAI_API_KEY: str 
     MODEL_NAME: str
     BASE_URL: str | None = None
+    
+    LANGFUSE_PUBLIC_KEY: str
+    LANGFUSE_SECRET_KEY: str
+    LANGFUSE_HOST: str 
 
 
 settings = Settings() 
