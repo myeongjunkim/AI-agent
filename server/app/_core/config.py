@@ -10,9 +10,9 @@ class Settings(BaseSettings):
     MODEL_NAME: str
     BASE_URL: str | None = None
     
-    LANGFUSE_PUBLIC_KEY: str
-    LANGFUSE_SECRET_KEY: str
-    LANGFUSE_HOST: str 
+    LANGFUSE_PUBLIC_KEY: str | None = None
+    LANGFUSE_SECRET_KEY: str | None = None
+    LANGFUSE_HOST: str = "localhost:3000"
 
 
-settings = Settings() 
+settings = Settings() # type: ignore
