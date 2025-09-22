@@ -8,12 +8,12 @@ Channel = Literal["web", "news", "blog"]
 
 class SearchItem(TypedDict, total=False):
     title: str
-    snippet: str
     url: str
-    source: str
-    provider: str
-    channel: Channel
+    snippet: Optional[str]
     published_at: Optional[str]
+    provider: Optional[str]   
+    source: Optional[str]
+    channel: Channel
     language: Optional[str]
     thumbnail: Optional[str]
     score: Optional[float]

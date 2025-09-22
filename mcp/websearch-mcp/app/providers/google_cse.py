@@ -5,6 +5,7 @@ from .base import Provider, SearchItem
 from .schema import GoogleCSEResponse
 from ..utils.http import build_async_client
 from ..utils.normalize import normalize_url, extract_domain
+import httpx
 
 
 class GoogleCSEProvider(Provider):  # type: ignore[misc]
@@ -13,7 +14,7 @@ class GoogleCSEProvider(Provider):  # type: ignore[misc]
     base_url = "https://www.googleapis.com/customsearch/v1"
 
 
-    def __init__(self, api_key: str, cse_id: str):
+    def __init__(self, api_key: str | None, cse_id: str | None):
         if not api_key or not cse_id:
             raise ValueError("GoogleCSEProvider requires api_key and cse_id")
         self.api_key = api_key
@@ -34,6 +35,8 @@ class GoogleCSEProvider(Provider):  # type: ignore[misc]
             params["hl"] = lang
         if region:
             params["gl"] = region
+            
+        params = httpx.QueryParams(params)
 
         async with build_async_client(lang) as client:
             resp = await client.get(self.base_url, params=params)

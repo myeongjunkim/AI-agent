@@ -11,6 +11,3 @@ wheels/
 
 # env
 .env
-
-# test
-test.py

@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 from typing import Dict, List, Optional, Any
+from app.providers.base import SearchItem
 from pydantic import BaseModel, Field
 
 
+class BaseSearchRequest(BaseModel):
+    query: str
+    limit: int = 50
+    
 class SearchRequest(BaseModel):
     query: str
     channels: List[str] = Field(default_factory=lambda: ["news", "web"])  # news 우선
@@ -20,18 +25,10 @@ class ErrorInfo(BaseModel):
     message: str
 
 
-class SearchItemModel(BaseModel):
-    id: int
+class BaseSearchItem(BaseModel):
     title: str
-    snippet: str
     url: str
-    source: str
-    provider: str
-    channel: str
     published_at: Optional[str] = None
-    language: Optional[str] = None
-    thumbnail: Optional[str] = None
-    score: Optional[float] = None
 
 
 class SearchResponse(BaseModel):
@@ -44,3 +41,6 @@ class SearchResponse(BaseModel):
     raw: Optional[List[dict]] = None
 
 
+class BaseSearchResponse(BaseModel):
+    query: str
+    results: List[SearchItem]

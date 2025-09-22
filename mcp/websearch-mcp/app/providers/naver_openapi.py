@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import List
-from .base import Provider, SearchItem
+from .base import SearchItem
 from .schema import NaverResponse
 from ..utils.http import build_async_client
 from ..utils.normalize import normalize_url, extract_domain, parse_date_to_iso
@@ -12,7 +12,7 @@ class NaverWebProvider:  # type: ignore[misc]
     channel = "web"
     base_url = "https://openapi.naver.com/v1/search/webkr.json"
 
-    def __init__(self, client_id: str, client_secret: str):
+    def __init__(self, client_id: str | None, client_secret: str | None):
         if not client_id or not client_secret:
             raise ValueError("NaverWebProvider requires client_id and client_secret")
         self.client_id = client_id
@@ -56,7 +56,7 @@ class NaverNewsProvider:  # type: ignore[misc]
     base_url = "https://openapi.naver.com/v1/search/news.json"
 
 
-    def __init__(self, client_id: str, client_secret: str):
+    def __init__(self, client_id: str | None, client_secret: str | None):
         if not client_id or not client_secret:
             raise ValueError("NaverNewsProvider requires client_id and client_secret")
         self.client_id = client_id
@@ -100,7 +100,7 @@ class NaverBlogProvider:  # type: ignore[misc]
     base_url = "https://openapi.naver.com/v1/search/blog.json"
 
 
-    def __init__(self, client_id: str, client_secret: str) -> None:
+    def __init__(self, client_id: str | None, client_secret: str | None):
         if not client_id or not client_secret:
             raise ValueError("NaverBlogProvider requires client_id and client_secret")
         self.client_id = client_id

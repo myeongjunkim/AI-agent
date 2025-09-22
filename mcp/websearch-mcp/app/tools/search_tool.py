@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Dict, List, Any
+from typing import List
 import asyncio
 
 from .base import BaseTool
-from .schema import SearchRequest, SearchResponse, SearchItemModel
 from ..providers.base import SearchItem
 from ..providers.google_cse import GoogleCSEProvider
 from ..providers.google_news_rss import GoogleNewsRSSProvider
@@ -13,6 +12,9 @@ from ..utils.rank import deduplicate, sort_items
 from ..config import settings
 
 from ..providers.enums import  Channel
+
+from app.tools.schema import BaseSearchRequest, BaseSearchResponse, SearchRequest, SearchResponse
+
 
 
 
@@ -69,3 +71,14 @@ class SearchTool(BaseTool):
         )
        
 
+
+class GoogleNewsRSSSearchTool(BaseTool):
+    def __init__(self) -> None:
+        self.google_news_rss_provider = GoogleNewsRSSProvider()
+
+    async def execute(self, request: BaseSearchRequest) -> BaseSearchResponse:
+        search_items = await self.google_news_rss_provider.search(request.query, request.limit)
+        return BaseSearchResponse(
+            query=request.query,
+            results=search_items
+        )

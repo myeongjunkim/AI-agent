@@ -1,6 +1,6 @@
+from app.providers.google_news_rss import GoogleNewsRSSProvider
 from fastmcp import FastMCP
-from app.tools.search_tool import SearchTool
-from app.tools.schema import SearchRequest, SearchResponse
+from app.tools.schema import BaseSearchRequest, BaseSearchResponse
 
 mcp = FastMCP(
     name="Websearch MCP",
@@ -8,11 +8,16 @@ mcp = FastMCP(
 )
 
 
+
 @mcp.tool
-async def aggregate_search_tool(req: SearchRequest) -> dict:
-    """Aggregates Google/Naver search results and returns normalized JSON for LLM summarization."""
-    search_tool = SearchTool()
-    response: SearchResponse = await search_tool.execute(req)
+async def google_news_rss_search_tool(req: BaseSearchRequest) -> dict:
+    """Aggregates Google News RSS search results and returns normalized JSON for LLM summarization."""
+    provider = GoogleNewsRSSProvider()
+    items = await provider.search(req.query, req.limit)
+    response = BaseSearchResponse(
+        query=req.query,
+        results=items
+    )
     return response.model_dump()
 
 
