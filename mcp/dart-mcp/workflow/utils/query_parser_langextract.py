@@ -31,13 +31,12 @@ class QueryParserLangExtract:
         from dotenv import load_dotenv
         load_dotenv('.env')
         
-        # vLLM 사용 여부 확인
-        self.use_vllm = os.getenv('EXTRACTION_USE_VLLM', 'false').lower() == 'true'
-        self.vllm_client = None
+        # Ollama 사용 여부 확인
+        self.use_ollama = os.getenv('EXTRACTION_USE_OLLAMA', 'false').lower() == 'true'
         
-        if self.use_vllm:
-            # vLLM을 백본으로 하는 LangExtract 설정
-            self._setup_langextract_with_vllm(os)
+        if self.use_ollama:
+            # Ollama를 백본으로 하는 LangExtract 설정
+            self._setup_langextract_with_ollama(os)
         else:
             # LangExtract 설정
             if not LANGEXTRACT_AVAILABLE:
@@ -54,26 +53,24 @@ class QueryParserLangExtract:
         # 프롬프트 및 예제 설정
         self._setup_extraction()
     
-    def _setup_langextract_with_vllm(self, os_module):
-        """vLLM을 백본으로 하는 LangExtract 설정"""
+    def _setup_langextract_with_ollama(self, os_module):
+        """Ollama를 백본으로 하는 LangExtract 설정"""
         if not LANGEXTRACT_AVAILABLE:
             raise ImportError("LangExtract가 설치되지 않았습니다. pip install langextract")
         
         try:
-            # vLLM 서버 설정
-            self.vllm_base_url = os_module.getenv('EXTRACTION_VLLM_BASE_URL', 'http://localhost:8000/v1')
-            self.vllm_api_key = os_module.getenv('EXTRACTION_VLLM_API_KEY', 'dummy-key')
-            self.vllm_model = os_module.getenv('EXTRACTION_VLLM_MODEL_NAME', 'meta-llama/Llama-3.1-8B-Instruct')
+            # Ollama 서버 설정
+            self.ollama_base_url = os_module.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
+            self.ollama_model = os_module.getenv('OLLAMA_MODEL', 'llama3.1:8b')
             
-            # LangExtract가 vLLM을 백본으로 사용하도록 설정
-            # OpenAI 호환 API를 사용
-            self.api_key = self.vllm_api_key
-            self.model_id = self.vllm_model
+            # LangExtract가 Ollama를 백본으로 사용하도록 설정
+            self.model_id = self.ollama_model
+            self.model_url = self.ollama_base_url
             
-            print(f"✅ LangExtract with vLLM 설정됨: {self.vllm_base_url}, Model: {self.vllm_model}")
+            print(f"✅ LangExtract with Ollama 설정됨: {self.ollama_base_url}, Model: {self.ollama_model}")
             
         except Exception as e:
-            print(f"❌ LangExtract with vLLM 설정 실패: {e}")
+            print(f"❌ LangExtract with Ollama 설정 실패: {e}")
             raise
     
     def _setup_extraction(self):
@@ -177,15 +174,16 @@ class QueryParserLangExtract:
             return self._fallback_parse(query)
         
         # LangExtract로 정보 추출
-        if self.use_vllm:
-            # vLLM을 백본으로 하는 LangExtract 호출
+        if self.use_ollama:
+            # Ollama를 백본으로 하는 LangExtract 호출
             result = lx.extract(
                 text_or_documents=query,
                 prompt_description=self.extraction_prompt,
                 examples=self.examples,
                 model_id=self.model_id,
-                api_key=self.api_key,
-                base_url=self.vllm_base_url  # vLLM 서버 URL
+                model_url=self.model_url,  # Ollama 서버 URL
+                fence_output=False,
+                use_schema_constraints=False
             )
         else:
             # 기본 Gemini 사용
