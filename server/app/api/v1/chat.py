@@ -15,7 +15,7 @@ async def chat(request) -> JSONResponse:
         mcp_config = json.load(f)
         mcp = MultiServerMCPClient(mcp_config)
     llm = ChatOpenAI(
-        model="gpt-4o-mini",
+        model=settings.MODEL_NAME,
         api_key=SecretStr(settings.OPENAI_API_KEY),
         base_url=settings.BASE_URL,
     )
