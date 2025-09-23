@@ -21,9 +21,10 @@
     "args": ["run", "fastmcp", "run", "app/main.py"],
     "cwd": "../mcp/dart-mcp",
     "env": {
-      "LLM_PROVIDER": "openai",
-      "OPENAI_API_KEY": "api-key",
-      "LLM_MODEL": "gpt-4o-mini",
+      "LLM_PROVIDER": "vllm",
+      "LLM_BASE_URL": "http://localhost:8000/v1",
+      "LLM_API_KEY": "EMPTY",
+      "LLM_MODEL": "meta-llama/Llama-3.1-8B-Instruct",
       "LLM_TEMPERATURE": "0",
       "LLM_MAX_TOKENS": "1000",
       "EXTRACTION_USE_OLLAMA": "false",

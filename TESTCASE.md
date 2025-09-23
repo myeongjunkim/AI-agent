@@ -9,7 +9,7 @@ Query for merger ratios in recent M&A disclosures:
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/chat/" \
   -H "Content-Type: application/json; charset=utf-8" \
-  -d '{"message": "최근 1개월 상장회사의 인수 합병 공시에서 합병 비율은 어땠는지 찾아봐줘."}'
+  -d '"최근 1개월 상장회사의 인수 합병 공시에서 합병 비율은 어땠는지 찾아봐줘."'
 ```
 
 ### 2. Alternative Test (English)

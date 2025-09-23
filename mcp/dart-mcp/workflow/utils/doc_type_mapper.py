@@ -49,24 +49,56 @@ class DocTypeMapper:
     def _initialize_mappings(self) -> List[DocTypeMapping]:
         """기본 매핑 테이블 (LLM 실패 시 폴백)"""
         return [
-            # 핵심 문서유형만 유지
+            # 증권신고서 (C코드) - 가장 높은 우선순위
+            DocTypeMapping("C001", "증권신고(지분증권)", 
+                         ["증권신고서", "증권신고", "지분증권", "주식발행", "공모", "상장", "유상증자", "무상증자"], 20),
+            DocTypeMapping("C002", "증권신고(채무증권)", 
+                         ["채무증권", "회사채", "사채발행", "채권발행", "전환사채", "신주인수권부사채"], 19),
+            DocTypeMapping("C003", "증권신고(파생결합증권)", 
+                         ["파생결합증권", "파생상품", "구조화상품"], 18),
+            DocTypeMapping("C004", "증권신고(합병등)", 
+                         ["합병신고", "증권신고합병", "주식교환신고", "회사합병", "주식교환"], 17),
+            DocTypeMapping("C006", "소액공모(지분증권)", 
+                         ["소액공모", "소액지분증권"], 16),
+            
+            # 주요사항보고서 (B코드)
             DocTypeMapping("B001", "주요사항보고서", 
-                         ["자기주식", "자사주", "매수선택권", "스톡옵션", "임원", "대표이사",
-                          "이사", "합병", "분할", "증자", "감자", "소송", "계약"], 15),
+                         ["주요사항보고서", "주요사항", "자기주식", "자사주", "매수선택권", "스톡옵션", 
+                          "임원", "대표이사", "이사", "소송", "계약", "영업양도", "영업양수", "자산양수도"], 15),
+            
+            # 정기보고서 (A코드)
             DocTypeMapping("A001", "사업보고서", 
-                         ["사업보고서", "연간보고서", "연차보고서"], 10),
+                         ["사업보고서", "연간보고서", "연차보고서", "연례보고서"], 12),
             DocTypeMapping("A002", "반기보고서", 
-                         ["반기보고서", "반기", "상반기", "하반기"], 9),
+                         ["반기보고서", "반기", "상반기", "하반기"], 11),
             DocTypeMapping("A003", "분기보고서", 
-                         ["분기보고서", "1분기", "3분기", "분기실적"], 8),
-            DocTypeMapping("E001", "자기주식취득처분", 
-                         ["자기주식취득", "자기주식처분", "자사주매입", "자사주매도"], 14),
-            DocTypeMapping("E004", "주식매수선택권", 
-                         ["주식매수선택권", "스톡옵션부여"], 13),
-            DocTypeMapping("D001", "대량보유상황보고서", 
-                         ["5%룰", "대량보유", "지분보고"], 13),
+                         ["분기보고서", "1분기", "2분기", "3분기", "4분기", "분기실적"], 10),
+            
+            # 기타주요공시 (E코드)
+            DocTypeMapping("E001", "자기주식취득/처분", 
+                         ["자기주식취득", "자기주식처분", "자사주매입", "자사주매도", "자기주식"], 14),
+            DocTypeMapping("E004", "주식매수선택권부여에관한신고", 
+                         ["주식매수선택권", "스톡옵션부여", "스톡옵션"], 13),
+            DocTypeMapping("E006", "주주총회소집보고서", 
+                         ["주주총회", "정기주주총회", "임시주주총회"], 12),
+            
+            # 지분공시 (D코드)
+            DocTypeMapping("D001", "주식등의대량보유상황보고서", 
+                         ["대량보유", "5%룰", "지분보고", "대량보유상황"], 13),
+            DocTypeMapping("D004", "공개매수", 
+                         ["공개매수", "인수합병"], 12),
+            
+            # 감사보고서 (F코드)
             DocTypeMapping("F001", "감사보고서", 
-                         ["감사보고서", "외부감사", "회계감사"], 12),
+                         ["감사보고서", "외부감사", "회계감사"], 11),
+            DocTypeMapping("F002", "연결감사보고서", 
+                         ["연결감사보고서", "연결감사"], 10),
+            
+            # 수시공시 (I코드)
+            DocTypeMapping("I001", "수시공시", 
+                         ["수시공시"], 9),
+            DocTypeMapping("I002", "공정공시", 
+                         ["공정공시"], 8),
         ]
     
     async def map_query_to_doc_types(self, query: str, langextract_result: Optional[Dict] = None, max_types: int = 3) -> List[Tuple[str, float]]:
@@ -259,14 +291,25 @@ JSON 형식으로 답하세요: [{"code": "문서코드", "confidence": 0.0-1.0}
         if langextract_result and langextract_result.get('doc_types'):
             for doc in langextract_result['doc_types']:
                 doc_name = doc.get('name', '').lower()
+                logger.info(f"LangExtract 문서유형: '{doc_name}'")
                 
-                # 직접 매핑 시도
+                # 직접 문서유형명 매칭 (정확한 매칭 우선)
                 for mapping in self.fallback_mappings:
+                    # 정확한 문서명 매칭
+                    if mapping.name.lower() in doc_name or doc_name in mapping.name.lower():
+                        if mapping.code not in scores:
+                            scores[mapping.code] = 0
+                        scores[mapping.code] += mapping.priority * 5  # 정확한 매칭은 최고 가중치
+                        logger.info(f"  → 정확한 매칭: {mapping.code} ({mapping.name})")
+                        continue
+                    
+                    # 키워드 매칭
                     for keyword in mapping.keywords:
                         if keyword in doc_name:
                             if mapping.code not in scores:
                                 scores[mapping.code] = 0
-                            scores[mapping.code] += mapping.priority * 2  # LangExtract 결과는 가중치 2배
+                            scores[mapping.code] += mapping.priority * 3  # LangExtract 키워드 매칭
+                            logger.info(f"  → 키워드 매칭: {mapping.code} ({keyword})")
                             break
         
         # 원본 쿼리에서도 매핑
@@ -295,9 +338,12 @@ JSON 형식으로 답하세요: [{"code": "문서코드", "confidence": 0.0-1.0}
             max_score = max(scores.values())
             results = [(code, score/max_score) for code, score in scores.items()]
             results.sort(key=lambda x: x[1], reverse=True)
+            logger.info(f"DocType 매핑 결과: {results[:max_types]}")
             return results[:max_types]
         
-        return []
+        # 결과가 없으면 기본값으로 주요사항보고서 반환 (기존 로직)
+        logger.warning("문서유형 매핑 실패, 기본값 사용: B001 (주요사항보고서)")
+        return [("B001", 0.3)]
     
     def _fallback_mapping(self, query: str, max_types: int) -> List[Tuple[str, float]]:
         """레거시 폴백 매핑 (하위 호환성)"""
