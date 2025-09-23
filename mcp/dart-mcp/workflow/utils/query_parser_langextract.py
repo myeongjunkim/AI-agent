@@ -6,6 +6,7 @@ LangExtract 쿼리 파서
 from typing import Dict, List, Optional, Any
 import re
 from pathlib import Path
+import json
 
 # LangExtract import
 try:
@@ -25,24 +26,55 @@ class QueryParserLangExtract:
             api_key: Gemini API 키 (None일 경우 환경변수에서 로드)
             model_id: 사용할 모델 ID (기본값: gemini-2.0-flash-exp)
         """
-        if not LANGEXTRACT_AVAILABLE:
-            raise ImportError("LangExtract가 설치되지 않았습니다. pip install langextract")
-        
         # API 설정
         import os
         from dotenv import load_dotenv
         load_dotenv('.env')
         
-        self.api_key = api_key or os.getenv('LANGEXTRACT_API_KEY') or os.getenv('GEMINI_API_KEY')
-        self.model_id = model_id or os.getenv('LANGEXTRACT_MODEL', 'gemini-2.0-flash-exp')
+        # vLLM 사용 여부 확인
+        self.use_vllm = os.getenv('EXTRACTION_USE_VLLM', 'false').lower() == 'true'
+        self.vllm_client = None
         
-        if not self.api_key:
-            print("⚠️ LANGEXTRACT_API_KEY가 설정되지 않았습니다.")
-            print("   .env 파일에 LANGEXTRACT_API_KEY를 설정하거나")
-            print("   https://aistudio.google.com/apikey 에서 API 키를 발급받으세요.")
+        if self.use_vllm:
+            # vLLM을 백본으로 하는 LangExtract 설정
+            self._setup_langextract_with_vllm(os)
+        else:
+            # LangExtract 설정
+            if not LANGEXTRACT_AVAILABLE:
+                raise ImportError("LangExtract가 설치되지 않았습니다. pip install langextract")
+            else:
+                self.api_key = api_key or os.getenv('LANGEXTRACT_API_KEY') or os.getenv('GEMINI_API_KEY')
+                self.model_id = model_id or os.getenv('LANGEXTRACT_MODEL', 'gemini-2.0-flash-exp')
+                
+                if not self.api_key:
+                    print("⚠️ LANGEXTRACT_API_KEY가 설정되지 않았습니다.")
+                    print("   .env 파일에 LANGEXTRACT_API_KEY를 설정하거나")
+                    print("   https://aistudio.google.com/apikey 에서 API 키를 발급받으세요.")
         
         # 프롬프트 및 예제 설정
         self._setup_extraction()
+    
+    def _setup_langextract_with_vllm(self, os_module):
+        """vLLM을 백본으로 하는 LangExtract 설정"""
+        if not LANGEXTRACT_AVAILABLE:
+            raise ImportError("LangExtract가 설치되지 않았습니다. pip install langextract")
+        
+        try:
+            # vLLM 서버 설정
+            self.vllm_base_url = os_module.getenv('EXTRACTION_VLLM_BASE_URL', 'http://localhost:8000/v1')
+            self.vllm_api_key = os_module.getenv('EXTRACTION_VLLM_API_KEY', 'dummy-key')
+            self.vllm_model = os_module.getenv('EXTRACTION_VLLM_MODEL_NAME', 'meta-llama/Llama-3.1-8B-Instruct')
+            
+            # LangExtract가 vLLM을 백본으로 사용하도록 설정
+            # OpenAI 호환 API를 사용
+            self.api_key = self.vllm_api_key
+            self.model_id = self.vllm_model
+            
+            print(f"✅ LangExtract with vLLM 설정됨: {self.vllm_base_url}, Model: {self.vllm_model}")
+            
+        except Exception as e:
+            print(f"❌ LangExtract with vLLM 설정 실패: {e}")
+            raise
     
     def _setup_extraction(self):
         """추출 설정"""
@@ -145,13 +177,25 @@ class QueryParserLangExtract:
             return self._fallback_parse(query)
         
         # LangExtract로 정보 추출
-        result = lx.extract(
-            text_or_documents=query,
-            prompt_description=self.extraction_prompt,
-            examples=self.examples,
-            model_id=self.model_id,
-            api_key=self.api_key
-        )
+        if self.use_vllm:
+            # vLLM을 백본으로 하는 LangExtract 호출
+            result = lx.extract(
+                text_or_documents=query,
+                prompt_description=self.extraction_prompt,
+                examples=self.examples,
+                model_id=self.model_id,
+                api_key=self.api_key,
+                base_url=self.vllm_base_url  # vLLM 서버 URL
+            )
+        else:
+            # 기본 Gemini 사용
+            result = lx.extract(
+                text_or_documents=query,
+                prompt_description=self.extraction_prompt,
+                examples=self.examples,
+                model_id=self.model_id,
+                api_key=self.api_key
+            )
         
         # 추출 결과 구조화
         parsed = {
