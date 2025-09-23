@@ -1,22 +1,16 @@
 import asyncio
 
-from app.tools.search_tool import SearchTool
-from app.tools.schema import SearchRequest
+from app.providers.google_news_rss import GoogleNewsRSSProvider
+from app.tools.schema import BaseSearchResponse
 
 async def main():
-
-    req = SearchRequest(
-        query="삼성전자 실적"           ,
-        channels=["news","web"],
-        limit_per_channel=3,
-        time_range="7d",
-        lang="ko",
-        region="KR",
-        include_raw=False
+    
+    provider = GoogleNewsRSSProvider()
+    items = await provider.search(query="삼성전자", limit=20)
+    response = BaseSearchResponse(
+        query="삼성전자",
+        results=items
     )
-    search_tool = SearchTool()
-    response = await search_tool.execute(req)
-    print(response.model_dump())
-
+    return response.model_dump()
 
 asyncio.run(main())
