@@ -17,6 +17,7 @@ async def chat(request) -> JSONResponse:
     llm = ChatOpenAI(
         model="gpt-4o-mini",
         api_key=SecretStr(settings.OPENAI_API_KEY),
+        base_url=settings.BASE_URL,
     )
     agent = MCPAgent(llm, mcp)
     response = await agent.chat(request)

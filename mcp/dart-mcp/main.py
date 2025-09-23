@@ -4,11 +4,12 @@ DART MCP Server
 한국 금융감독원 DART (전자공시시스템) API를 위한 MCP 서버
 """
 
-import asyncio
-import sys
 import signal
+import sys
 import time
-from mcp.server.fastmcp import FastMCP
+
+from fastmcp import FastMCP
+
 from tools.dart_deep_search_tools import register_deep_search_tools
 from utils.logging import get_logger
 
@@ -48,7 +49,7 @@ def setup_signal_handlers():
         server_state.shutdown_requested = True
         logger.info(f"🔔 Received signal {signum}, initiating graceful shutdown...")
         sys.exit(0)
-    
+
     if sys.platform != 'win32':
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
@@ -56,27 +57,27 @@ def setup_signal_handlers():
 def initialize_server():
     """서버 초기화 및 모듈 등록"""
     server_state.startup_time = time.time()
-    
+
     logger.info("🚀 DART MCP Server starting up...")
-    
+
     try:
         # 시그널 핸들러 설정
         setup_signal_handlers()
-        
+
         # DART 심층 검색 도구 등록
         logger.info("📦 Registering DART Deep Search tools...")
         register_deep_search_tools(mcp)
         server_state.total_tools += 1  # dart_deep_search
         server_state.registered_modules.append("dart_deep_search_tools")
-        
+
         # 초기화 완료
         server_state.initialized = True
         startup_duration = time.time() - server_state.startup_time
-        
+
         logger.info(f"✅ Server initialization completed in {startup_duration:.2f}s")
         logger.info(f"📊 Total tools registered: {server_state.total_tools}")
         logger.info(f"📚 Registered modules: {', '.join(server_state.registered_modules)}")
-        
+
     except Exception as e:
         logger.error(f"❌ Critical failure during server initialization: {e}")
         raise
@@ -86,7 +87,7 @@ def shutdown_server():
     if server_state.startup_time:
         shutdown_duration = time.time() - server_state.startup_time
         logger.info(f"🛑 DART MCP Server shutting down after {shutdown_duration:.2f}s uptime")
-    
+
     logger.info("👋 DART MCP Server process ended")
 
 
@@ -94,10 +95,10 @@ if __name__ == "__main__":
     try:
         # 서버 초기화
         initialize_server()
-        
+
         # MCP 서버 시작
         mcp.run(transport="stdio")
-        
+
     except KeyboardInterrupt:
         logger.info("🛑 Server shutdown requested by user (KeyboardInterrupt)")
     except Exception as e:
