@@ -38,9 +38,6 @@ DART MCP 서버는 한국 금융감독원 DART(전자공시시스템)의 api를 
 
 🔍 주요 기능:
 • dart_deep_search: 복잡한 자연어 쿼리를 통한 포괄적 공시 검색
-• dart_analyze_query: 검색 쿼리 분석 및 파라미터 추출
-• dart_search_by_company: 특정 기업 중심의 공시 검색
-• dart_search_by_event: 특정 이벤트 유형별 공시 검색
 
 """
 )
@@ -69,7 +66,7 @@ def initialize_server():
         # DART 심층 검색 도구 등록
         logger.info("📦 Registering DART Deep Search tools...")
         register_deep_search_tools(mcp)
-        server_state.total_tools += 4  # dart_deep_search, dart_analyze_query, dart_search_by_company, dart_search_by_event
+        server_state.total_tools += 1  # dart_deep_search
         server_state.registered_modules.append("dart_deep_search_tools")
         
         # 초기화 완료

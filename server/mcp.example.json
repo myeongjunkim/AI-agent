@@ -14,5 +14,34 @@
       "LAW_OC": "",
       "DART_API_KEY": ""
     }
+  },
+  "dart-mcp": {
+    "transport": "stdio",
+    "command": "uv",
+    "args": ["run", "fastmcp", "run", "app/main.py"],
+    "cwd": "../mcp/dart-mcp",
+    "env": {
+      "LLM_PROVIDER": "openai",
+      "OPENAI_API_KEY": "api-key",
+      "LLM_MODEL": "gpt-4o-mini",
+      "LLM_TEMPERATURE": "0",
+      "LLM_MAX_TOKENS": "1000",
+      "EXTRACTION_USE_OLLAMA": "false",
+      "OLLAMA_BASE_URL": "http://localhost:11434",
+      "OLLAMA_MODEL": "llama3.1:8b",
+      "EXTRACTION_USE_LANGFUSE": "true",
+      "LANGFUSE_API_KEY": "api-key",
+      "LANGFUSE_MODEL": "gemini-2.0-flash-exp",
+      "DART_API_KEY": "api-key",
+      "DART_CACHE_PATH": "./cache/dart",
+      "DART_CACHE_TTL": "24",
+      "DART_API_RATE_LIMIT": "1000",
+      "DART_MAX_SEARCH_RESULTS": "100",
+      "DART_PARALLEL_DOWNLOADS": "5",
+      "DART_PARSE_TIMEOUT": "30000",
+      "DART_DOWNLOAD_PATH": "./downloads/dart",
+      "LOG_LEVEL": "INFO",
+      "LOG_DIR": "./logs"
+    }
   }
 }
