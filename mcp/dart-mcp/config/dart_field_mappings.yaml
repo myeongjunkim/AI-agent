@@ -1,0 +1,705 @@
+# DART API 응답 필드 매핑 정의
+# 다른 모듈에서 가져다 사용할 수 있도록 분리
+
+field_mappings:
+  # 기본 응답 필드
+  result: 결과
+  status: 에러 및 정보 코드
+  message: 에러 및 정보 메시지
+  group: 그룹
+  title: 그룹명칭
+  list: 리스트
+  
+  # 공통 필드
+  # rcept_no: 접수번호
+  # rcp_no: 접수번호
+  # corp_cls: 법인구분  # Y(유가), K(코스닥), N(코넥스), E(기타)
+  # corp_code: 고유번호
+  # corp_name: 회사명
+  # stock_code: 종목코드
+  # report_nm: 보고서명
+  # rcept_dt: 접수일자
+  flr_nm: 제출인
+  rm: 비고
+  
+  # 일반사항 관련 필드
+  stn: 형태
+  bddd: 이사회결의일
+  ctrd: 계약일
+  gmtsck_shddstd: 주주총회를위한주주확정일
+  ap_gmtsck: 승인을위한주주총회일
+  aprskh_pd_bgd: 주식매수청구권행사기간및가격(시작일)
+  aprskh_pd_edd: 주식매수청구권행사기간및가격(종료일)
+  aprskh_prc: 주식매수청구권행사기간및가격(주식매수청구가격-회사제시)
+  mgdt_etc: 합병기일등
+  rt_vl: 비율또는가액
+  exevl_int: 외부평가기관
+  grtmn_etc: 지급교부금등
+  rpt_rcpn: 주요사항보고서(접수번호)
+  
+  # 발행증권 관련 필드
+  kndn: 종류
+  cnt: 수량
+  fv: 액면가액
+  slprc: 모집(매출)가액
+  slta: 모집(매출)총액
+  
+  # 당사회사에관한사항 관련 필드
+  cmpnm: 회사명
+  sen: 구분
+  tast: 총자산
+  cpt: 자본금
+  isstk_knd: 발행주식수(주식의종류)
+  isstk_cnt: 발행주식수(주식수)
+  
+  # 주요사항보고서 필드
+  rp_rsn: 보고사유
+  ast_inhtrf_prc: 자산양수도가액
+  inv_prm: 투자판단관련
+  trf_amt: 양도금액
+  acqs_amt: 취득금액
+  disp_amt: 처분금액
+  
+  # 재무 관련 필드
+  account_nm: 계정명
+  sj_nm: 재무제표명
+  thstrm_nm: 당기명
+  thstrm_amount: 당기금액
+  frmtrm_nm: 전기명
+  frmtrm_amount: 전기금액
+  bfefrmtrm_nm: 전전기명
+  bfefrmtrm_amount: 전전기금액
+  
+  # 주주 관련 필드
+  sh_nm: 주주명
+  hld_qty: 보유수량
+  hld_rt: 보유비율
+  chg_qty: 변동수량
+  chg_rt: 변동비율
+  
+  # 임원 관련 필드
+  nm: 성명
+  sexdstn: 성별
+  birth_ym: 출생년월
+  ofcps: 직위
+  rgist_exctv_at: 등기임원여부
+  main_career: 주요경력
+  
+  # 배당 관련 필드
+  div_kind: 배당종류
+  div_rate: 배당률
+  div_amt: 배당금액
+  
+  # 날짜 관련
+  bgn_de: 시작일
+  end_de: 종료일
+  list_dt: 상장일
+  delist_dt: 상장폐지일
+  
+  # 기타
+  pblntf_detail_ty: 공시상세유형
+  pblntf_ty: 공시유형
+  crp_cls: 법인유형
+  
+  # 합병 관련 필드
+  mg_mth: 합병방법
+  mg_stn: 합병형태
+  mg_pp: 합병목적
+  mg_rt: 합병비율
+  mg_rt_bs: 합병비율 산출근거
+  exevl_atn: 외부평가에 관한 사항(외부평가 여부)
+  exevl_bs_rs: 외부평가에 관한 사항(근거 및 사유)
+  exevl_intn: 외부평가에 관한 사항(외부평가기관의 명칭)
+  exevl_pd: 외부평가에 관한 사항(외부평가 기간)
+  exevl_op: 외부평가에 관한 사항(외부평가 의견)
+  mgnstk_ostk_cnt: 합병신주의 종류와 수(주)(보통주식)
+  mgnstk_cstk_cnt: 합병신주의 종류와 수(주)(종류주식)
+  
+  # 합병상대회사 관련
+  mgptncmp_cmpnm: 합병상대회사(회사명)
+  mgptncmp_mbsn: 합병상대회사(주요사업)
+  mgptncmp_rl_cmpn: 합병상대회사(회사와의 관계)
+  rbsnfdtl_tast: 합병상대회사(최근 사업연도 재무내용(원)(자산총계))
+  rbsnfdtl_tdbt: 합병상대회사(최근 사업연도 재무내용(원)(부채총계))
+  rbsnfdtl_teqt: 합병상대회사(최근 사업연도 재무내용(원)(자본총계))
+  rbsnfdtl_cpt: 합병상대회사(최근 사업연도 재무내용(원)(자본금))
+  rbsnfdtl_sl: 합병상대회사(최근 사업연도 재무내용(원)(매출액))
+  rbsnfdtl_nic: 합병상대회사(최근 사업연도 재무내용(원)(당기순이익))
+  eadtat_intn: 합병상대회사(외부감사 여부(기관명))
+  eadtat_op: 합병상대회사(외부감사 여부(감사의견))
+  
+  # 합병신설회사 관련  
+  nmgcmp_cmpnm: 합병에 관한 사항(합병신설 회사(회사명))
+  nmgcmp_cpt: 합병에 관한 사항(합병신설 회사(자본금(원)))
+  nmgcmp_mbsn: 합병에 관한 사항(합병신설 회사(주요사업))
+  nmgcmp_rlst_atn: 합병에 관한 사항(합병신설 회사(재상장신청 여부))
+  nmgcmp_nbsn_rsl: 신설합병회사(신설사업부문 최근 사업연도 매출액(원))
+  
+  # 합병일정 관련
+  mgsc_mgctrd: 합병일정(합병계약일)
+  mgsc_shddstd: 합병일정(주주확정기준일)
+  mgsc_shclspd_bgd: 합병일정(주주명부 폐쇄기간(시작일))
+  mgsc_shclspd_edd: 합병일정(주주명부 폐쇄기간(종료일))
+  mgsc_mgop_rcpd_bgd: 합병일정(합병반대의사통지 접수기간(시작일))
+  mgsc_mgop_rcpd_edd: 합병일정(합병반대의사통지 접수기간(종료일))
+  mgsc_gmtsck_prd: 합병일정(주주총회예정일자)
+  mgsc_aprskh_expd_bgd: 합병일정(주식매수청구권 행사기간(시작일))
+  mgsc_aprskh_expd_edd: 합병일정(주식매수청구권 행사기간(종료일))
+  mgsc_osprpd_bgd: 합병일정(구주권 제출기간(시작일))
+  mgsc_osprpd_edd: 합병일정(구주권 제출기간(종료일))
+  mgsc_trspprpd_bgd: 합병일정(매매거래 정지예정기간(시작일))
+  mgsc_trspprpd_edd: 합병일정(매매거래 정지예정기간(종료일))
+  mgsc_cdobprpd_bgd: 합병일정(채권자이의 제출기간(시작일))
+  mgsc_cdobprpd_edd: 합병일정(채권자이의 제출기간(종료일))
+  mgsc_mgdt: 합병일정(합병기일)
+  mgsc_ergmd: 합병일정(종료보고 총회일)
+  mgsc_mgrgsprd: 합병일정(합병등기예정일자)
+  mgsc_nstkdlprd: 합병일정(신주권교부예정일)
+  mgsc_nstklstprd: 합병일정(신주의 상장예정일)
+  
+  # 기타 합병 관련
+  bdlst_atn: 우회상장 해당 여부
+  otcpr_bdlst_sf_atn: 타법인의 우회상장 요건 충족여부
+  aprskh_plnprc: 주식매수청구권에 관한 사항(매수예정가격)
+  aprskh_pym_plpd_mth: 주식매수청구권에 관한 사항(지급예정시기, 지급방법)
+  aprskh_ctref: 주식매수청구권에 관한 사항(계약에 미치는 효력)
+  bddd: 이사회결의일(결정일)
+  od_a_at_t: 사외이사참석여부(참석(명))
+  od_a_at_b: 사외이사참석여부(불참(명))
+  adt_a_atn: 감사(사외이사가 아닌 감사위원) 참석여부
+  popt_ctr_atn: 풋옵션 등 계약 체결여부
+  popt_ctr_cn: 계약내용
+  rs_sm_atn: 증권신고서 제출대상 여부
+  ex_sm_r: 제출을 면제받은 경우 그 사유
+  
+  # 분할합병 관련 필드
+  dvmg_mth: 분할합병 방법
+  dvmg_impef: 분할합병의 중요영향 및 효과
+  dv_trfbsnprt_cn: 분할에 관한 사항(분할로 이전할 사업 및 재산의 내용)
+  atdv_excmp_cmpnm: 분할에 관한 사항(분할 후 존속회사(회사명))
+  atdvfdtl_tast: 분할에 관한 사항(분할 후 존속회사(분할후 재무내용(원)(자산총계)))
+  atdvfdtl_tdbt: 분할에 관한 사항(분할 후 존속회사(분할후 재무내용(원)(부채총계)))
+  atdvfdtl_teqt: 분할에 관한 사항(분할 후 존속회사(분할후 재무내용(원)(자본총계)))
+  atdvfdtl_cpt: 분할에 관한 사항(분할 후 존속회사(분할후 재무내용(원)(자본금)))
+  atdvfdtl_std: 분할에 관한 사항(분할 후 존속회사(분할후 재무내용(원)(현재기준)))
+  atdv_excmp_exbsn_rsl: 분할에 관한 사항(분할 후 존속회사(존속사업부문 최근 사업연도매출액(원)))
+  atdv_excmp_mbsn: 분할에 관한 사항(분할 후 존속회사(주요사업))
+  atdv_excmp_atdv_lstmn_atn: 분할에 관한 사항(분할 후 존속회사(분할 후 상장유지 여부))
+  
+  # 분할설립회사 관련
+  dvfcmp_cmpnm: 분할에 관한 사항(분할설립 회사(회사명))
+  ffdtl_tast: 분할에 관한 사항(분할설립 회사(설립시 재무내용(원)(자산총계)))
+  ffdtl_tdbt: 분할에 관한 사항(분할설립 회사(설립시 재무내용(원)(부채총계)))
+  ffdtl_teqt: 분할에 관한 사항(분할설립 회사(설립시 재무내용(원)(자본총계)))
+  ffdtl_cpt: 분할에 관한 사항(분할설립 회사(설립시 재무내용(원)(자본금)))
+  ffdtl_std: 분할에 관한 사항(분할설립 회사(설립시 재무내용(원)(현재기준)))
+  dvfcmp_nbsn_rsl: 분할에 관한 사항(분할설립 회사(신설사업부문 최근 사업연도 매출액(원)))
+  dvfcmp_mbsn: 분할에 관한 사항(분할설립 회사(주요사업))
+  dvfcmp_atdv_lstmn_at: 분할에 관한 사항(분할설립 회사(분할후 상장유지여부))
+  
+  # 감자 관련
+  abcr_crrt: 분할에 관한 사항(감자에 관한 사항(감자비율(%)))
+  abcr_osprpd_bgd: 분할에 관한 사항(감자에 관한 사항(구주권 제출기간(시작일)))
+  abcr_osprpd_edd: 분할에 관한 사항(감자에 관한 사항(구주권 제출기간(종료일)))
+  abcr_trspprpd_bgd: 분할에 관한 사항(감자에 관한 사항(매매거래정지 예정기간(시작일)))
+  abcr_trspprpd_edd: 분할에 관한 사항(감자에 관한 사항(매매거래정지 예정기간(종료일)))
+  abcr_nstkascnd: 분할에 관한 사항(감자에 관한 사항(신주배정조건))
+  abcr_shstkcnt_rt_at_rs: 분할에 관한 사항(감자에 관한 사항(주주 주식수 비례여부 및 사유))
+  abcr_nstkasstd: 분할에 관한 사항(감자에 관한 사항(신주배정기준일))
+  abcr_nstkdlprd: 분할에 관한 사항(감자에 관한 사항(신주권교부예정일))
+  abcr_nstklstprd: 분할에 관한 사항(감자에 관한 사항(신주의 상장예정일))
+  
+  # 분할합병 관련 추가 필드
+  mg_stn: 합병에 관한 사항(합병형태)
+  mgptncmp_cmpnm: 합병에 관한 사항(합병상대 회사(회사명))
+  mgptncmp_mbsn: 합병에 관한 사항(합병상대 회사(주요사업))
+  mgptncmp_rl_cmpn: 합병에 관한 사항(합병상대 회사(회사와의 관계))
+  rbsnfdtl_tast: 합병에 관한 사항(합병상대 회사(최근 사업연도 재무내용(원)(자산총계)))
+  rbsnfdtl_tdbt: 합병에 관한 사항(합병상대 회사(최근 사업연도 재무내용(원)(부채총계)))
+  rbsnfdtl_teqt: 합병에 관한 사항(합병상대 회사(최근 사업연도 재무내용(원)(자본총계)))
+  rbsnfdtl_cpt: 합병에 관한 사항(합병상대 회사(최근 사업연도 재무내용(원)(자본금)))
+  rbsnfdtl_sl: 합병에 관한 사항(합병상대 회사(최근 사업연도 재무내용(원)(매출액)))
+  rbsnfdtl_nic: 합병에 관한 사항(합병상대 회사(최근 사업연도 재무내용(원)(당기순이익)))
+  eadtat_intn: 합병에 관한 사항(합병상대 회사(외부감사 여부(기관명)))
+  eadtat_op: 합병에 관한 사항(합병상대 회사(외부감사 여부(감사의견)))
+  
+  # 분할합병 신주 관련
+  dvmgnstk_ostk_cnt: 합병에 관한 사항(분할합병신주의 종류와 수(주)(보통주식))
+  dvmgnstk_cstk_cnt: 합병에 관한 사항(분할합병신주의 종류와 수(주)(종류주식))
+  dvmg_rt: 분할합병비율
+  dvmg_rt_bs: 분할합병비율 산출근거
+  
+  # 분할합병일정 관련
+  dvmgsc_dvmgctrd: 분할합병일정(분할합병계약일)
+  dvmgsc_shddstd: 분할합병일정(주주확정기준일)
+  dvmgsc_shclspd_bgd: 분할합병일정(주주명부 폐쇄기간(시작일))
+  dvmgsc_shclspd_edd: 분할합병일정(주주명부 폐쇄기간(종료일))
+  dvmgsc_dvmgop_rcpd_bgd: 분할합병일정(분할합병반대의사통지 접수기간(시작일))
+  dvmgsc_dvmgop_rcpd_edd: 분할합병일정(분할합병반대의사통지 접수기간(종료일))
+  dvmgsc_gmtsck_prd: 분할합병일정(주주총회예정일자)
+  dvmgsc_aprskh_expd_bgd: 분할합병일정(주식매수청구권 행사기간(시작일))
+  dvmgsc_aprskh_expd_edd: 분할합병일정(주식매수청구권 행사기간(종료일))
+  dvmgsc_cdobprpd_bgd: 분할합병일정(채권자 이의 제출기간(시작일))
+  dvmgsc_cdobprpd_edd: 분할합병일정(채권자 이의 제출기간(종료일))
+  dvmgsc_dvmgdt: 분할합병일정(분할합병기일)
+  dvmgsc_ergmd: 분할합병일정(종료보고 총회일)
+  dvmgsc_dvmgrgsprd: 분할합병일정(분할합병등기예정일)
+  
+  # 주식매수청구권 추가 필드
+  aprskh_exrq: 주식매수청구권에 관한 사항(행사요건)
+  aprskh_ex_pc_mth_pd_pl: 주식매수청구권에 관한 사항(행사절차, 방법, 기간, 장소)
+  aprskh_lmt: 주식매수청구권에 관한 사항(주식매수청구권 제한 관련 내용)
+  
+  # 타법인증권양수 관련 필드
+  iscmp_cmpnm: 발행회사(회사명)
+  iscmp_nt: 발행회사(국적)
+  iscmp_rp: 발행회사(대표자)
+  iscmp_cpt: 발행회사(자본금(원))
+  iscmp_rl_cmpn: 발행회사(회사와 관계)
+  iscmp_tisstk: 발행회사(발행주식 총수(주))
+  iscmp_mbsn: 발행회사(주요사업)
+  l6m_tpa_nstkaq_atn: 최근 6월 이내 제3자 배정에 의한 신주취득 여부
+  
+  # 타법인증권양도 관련 필드
+  trfdtl_stkcnt: 양도내역(양도주식수(주))
+  trfdtl_trfprc: 양도내역(양도금액(원)(A))
+  trfdtl_tast: 양도내역(총자산(원)(B))
+  trfdtl_rate: 양도내역(비율(A/B, %))
+  trfdtl_bkvl: 양도내역(장부가액(원))
+  trfdtl_gn: 양도내역(처분손익(원))
+  trfdtl_rmk: 양도내역(비고)
+  bfac_sttno: 취득경위(주식취득일자)
+  bfac_stkaq_wht_and_pr: 취득경위(주식취득경위 및 절차)
+  bfac_ostk_cnt: 취득경위(주식종류 및 수량(보통주(주)))
+  bfac_cstk_cnt: 취득경위(주식종류 및 수량(종류주(주)))
+  bfac_aq_prc: 취득경위(취득금액(원))
+  bfac_pldh_cnt: 취득경위(보유주식수(주))
+  bfac_pldh_rate: 취득경위(지분율(%))
+  
+  # 양수내역 관련
+  inhdtl_stkcnt: 양수내역(양수주식수(주))
+  inhdtl_inhprc: 양수내역(양수금액(원)(A))
+  inhdtl_tast: 양수내역(총자산(원)(B))
+  inhdtl_tast_vs: 양수내역(총자산대비(%)(A/B))
+  inhdtl_ecpt: 양수내역(자기자본(원)(C))
+  inhdtl_ecpt_vs: 양수내역(자기자본대비(%)(A/C))
+  atinh_owstkcnt: 양수후 소유주식수 및 지분비율(소유주식수(주))
+  atinh_eqrt: 양수후 소유주식수 및 지분비율(지분비율(%))
+  inh_pp: 양수목적
+  inh_prd: 양수예정일자
+  
+  # 거래상대방 관련
+  dlptn_cmpnm: 거래상대방(회사명(성명))
+  dlptn_cpt: 거래상대방(자본금(원))
+  dlptn_mbsn: 거래상대방(주요사업)
+  dlptn_hoadd: 거래상대방(본점소재지(주소))
+  dlptn_rl_cmpn: 거래상대방(회사와의 관계)
+  dl_pym: 거래대금지급
+  
+  # 추가 필드들
+  n6m_tpai_plann: 향후 6월이내 제3자배정 증자 등 계획
+  iscmp_bdlst_sf_atn: 발행회사(타법인)의 우회상장 요건 충족여부
+  ftc_stt_atn: 공정거래위원회 신고대상 여부
+  
+  # 증권 발행 관련 필드
+  sbd: 청약기일
+  pymd: 납입기일
+  sband: 청약공고일
+  asand: 배정공고일
+  asstd: 배정기준일
+  exstk: 신주인수권에 관한 사항(행사대상증권)
+  exprc: 신주인수권에 관한 사항(행사가격)
+  expd: 신주인수권에 관한 사항(행사기간)
+  
+  # 증권 종류 관련 필드
+  stksen: 증권의종류
+  stkcnt: 증권수량
+  slmthn: 모집(매출)방법
+  
+  # 인수인 정보 관련 필드
+  actsen: 인수인구분
+  actnmn: 인수인명
+  udtcnt: 인수수량
+  udtamt: 인수금액
+  udtprc: 인수대가
+  udtmth: 인수방법
+  
+  # 자금 사용 목적 관련 필드
+  se: 구분
+  amt: 금액
+  
+  # 매출인 관련 필드
+  hdr: 보유자
+  rl_cmp: 회사와의관계
+  bfsl_hdstk: 매출전보유증권수
+  slstk: 매출증권수
+  atsl_hdstk: 매출후보유증권수
+  
+  # 일반청약자환매청구권 관련 필드
+  grtrs: 부여사유
+  exavivr: 행사가능 투자자
+  grtcnt: 부여수량
+  
+  # 채무증권 관련 필드
+  tm: 회차
+  bdnmn: 채무증권 명칭
+  fta: 권면(전자등록)총액
+  isprc: 발행가액
+  intr: 이자율
+  isrr: 발행수익률
+  rpd: 상환기일
+  print_pymint: 원리금지급대행기관
+  mngt_cmp: (사채)관리회사
+  cdrt_int: 신용등급(신용평가기관)
+  
+  # 채무증권 발행 관련 필드
+  dpcrn: 표시통화
+  dpcr_amt: 표시통화기준발행규모
+  usarn: 사용지역
+  usntn: 사용국가
+  wnexpl_at: 원화 교환 예정 여부
+  udtintnm: 인수기관명
+  
+  # 보증 및 담보 관련 필드
+  grt_int: 보증을 받은 경우(보증기관)
+  grt_amt: 보증을 받은 경우(보증금액)
+  icmg_mgknd: 담보 제공의 경우(담보의 종류)
+  icmg_mgamt: 담보 제공의 경우(담보금액)
+  
+  # 지분증권 연계 관련 필드
+  estk_exstk: 지분증권과 연계된 경우(행사대상증권)
+  estk_exrt: 지분증권과 연계된 경우(권리행사비율)
+  estk_exprc: 지분증권과 연계된 경우(권리행사가격)
+  estk_expd: 지분증권과 연계된 경우(권리행사기간)
+  
+  # 파생결합사채 관련 필드
+  drcb_at: 파생결합사채해당여부
+  drcb_uast: 파생결합사채(기초자산)
+  drcb_optknd: 파생결합사채(옵션종류)
+  drcb_mtd: 파생결합사채(만기일)
+  
+  # 부도 관련 필드
+  df_cn: 부도내용
+  df_amt: 부도금액
+  df_bnk: 부도발생은행
+  dfd: 최종부도(당좌거래정지)일자
+  df_rs: 부도사유 및 경위
+  
+  # 영업정지 관련 필드
+  bsnsp_rm: 영업정지 분야
+  bsnsp_amt: 영업정지 내역(영업정지금액)
+  rsl: 영업정지 내역(최근매출총액)
+  sl_vs: 영업정지 내역(매출액 대비)
+  ls_atn: 영업정지 내역(대규모법인여부)
+  krx_stt_atn: 영업정지 내역(거래소 의무공시 해당 여부)
+  bsnsp_cn: 영업정지 내용
+  bsnsp_rs: 영업정지사유
+  ft_ctp: 향후대책
+  bsnsp_af: 영업정지영향
+  bsnspd: 영업정지일자
+  
+  # 법정관리 관련 필드
+  apcnt: 신청인 (회사와의 관계)
+  cpct: 관할법원
+  rq_rs: 신청사유
+  rqd: 신청일자
+  ft_ctp_sc: 향후대책 및 일정
+  
+  # 해산 관련 필드
+  ds_rs: 해산사유
+  ds_rsd: 해산사유발생일(결정일)
+  
+  # 증자 관련 필드
+  nstk_ostk_cnt: 신주의 종류와 수(보통주식 (주))
+  nstk_estk_cnt: 신주의 종류와 수(기타주식 (주))
+  fv_ps: 1주당 액면가액 (원)
+  bfic_tisstk_ostk: 증자전 발행주식총수 (주)(보통주식 (주))
+  bfic_tisstk_estk: 증자전 발행주식총수 (주)(기타주식 (주))
+  
+  # 자금조달 목적 관련 필드
+  fdpp_fclt: 자금조달의 목적(시설자금 (원))
+  fdpp_bsninh: 자금조달의 목적(영업양수자금 (원))
+  fdpp_op: 자금조달의 목적(운영자금 (원))
+  fdpp_dtrp: 자금조달의 목적(채무상환자금 (원))
+  fdpp_ocsa: 자금조달의 목적(타법인 증권 취득자금 (원))
+  fdpp_etc: 자금조달의 목적(기타자금 (원))
+  
+  # 증자방식 및 공매도 관련 필드
+  ic_mthn: 증자방식
+  ssl_at: 공매도 해당여부
+  ssl_bgd: 공매도 시작일
+  ssl_edd: 공매도 종료일
+  
+  # 신주배정 관련 필드
+  nstk_asstd: 신주배정기준일
+  nstk_ascnt_ps_ostk: 1주당 신주배정 주식수(보통주식 (주))
+  nstk_ascnt_ps_estk: 1주당 신주배정 주식수(기타주식 (주))
+  nstk_dividrk: 신주의 배당기산일
+  nstk_dlprd: 신주권교부예정일
+  nstk_lstprd: 신주의 상장 예정일
+  
+  # 유상증자 관련 필드
+  piic_nstk_ostk_cnt: 유상증자(신주의 종류와 수(보통주식 (주)))
+  piic_nstk_estk_cnt: 유상증자(신주의 종류와 수(기타주식 (주)))
+  piic_fv_ps: 유상증자(1주당 액면가액 (원))
+  piic_bfic_tisstk_ostk: 유상증자(증자전 발행주식총수 (주)(보통주식 (주)))
+  piic_bfic_tisstk_estk: 유상증자(증자전 발행주식총수 (주)(기타주식 (주)))
+  piic_fdpp_fclt: 유상증자(자금조달의 목적(시설자금 (원)))
+  piic_fdpp_bsninh: 유상증자(자금조달의 목적(영업양수자금 (원)))
+  piic_fdpp_op: 유상증자(자금조달의 목적(운영자금 (원)))
+  piic_fdpp_dtrp: 유상증자(자금조달의 목적(채무상환자금 (원)))
+  piic_fdpp_ocsa: 유상증자(자금조달의 목적(타법인 증권 취득자금 (원)))
+  piic_fdpp_etc: 유상증자(자금조달의 목적(기타자금 (원)))
+  piic_ic_mthn: 유상증자(증자방식)
+  
+  # 무상증자 관련 필드
+  fric_nstk_ostk_cnt: 무상증자(신주의 종류와 수(보통주식 (주)))
+  fric_nstk_estk_cnt: 무상증자(신주의 종류와 수(기타주식 (주)))
+  fric_fv_ps: 무상증자(1주당 액면가액 (원))
+  fric_bfic_tisstk_ostk: 무상증자(증자전 발행주식총수(보통주식 (주)))
+  fric_bfic_tisstk_estk: 무상증자(증자전 발행주식총수(기타주식 (주)))
+  fric_nstk_asstd: 무상증자(신주배정기준일)
+  fric_nstk_ascnt_ps_ostk: 무상증자(1주당 신주배정 주식수(보통주식 (주)))
+  fric_nstk_ascnt_ps_estk: 무상증자(1주당 신주배정 주식수(기타주식 (주)))
+  fric_nstk_dividrk: 무상증자(신주의 배당기산일)
+  fric_nstk_dlprd: 무상증자(신주권교부예정일)
+  fric_nstk_lstprd: 무상증자(신주의 상장 예정일)
+  fric_bddd: 무상증자(이사회결의일(결정일))
+  fric_od_a_at_t: 무상증자(사외이사 참석여부(참석(명)))
+  fric_od_a_at_b: 무상증자(사외이사 참석여부(불참(명)))
+  fric_adt_a_atn: 무상증자(감사(감사위원)참석 여부)
+  
+  # 해외상장 관련 필드
+  lstprstk_ostk_cnt: 상장예정주식 종류ㆍ수(주)(보통주식)
+  lstprstk_estk_cnt: 상장예정주식 종류ㆍ수(주)(기타주식)
+  tisstk_ostk: 발행주식 총수(주)(보통주식)
+  tisstk_estk: 발행주식 총수(주)(기타주식)
+  psmth_nstk_sl: 공모방법(신주발행 (주))
+  psmth_ostk_sl: 공모방법(구주매출 (주))
+  fdpp: 자금조달(신주발행) 목적
+  lststk_orlst: 상장증권(원주상장 (주))
+  lststk_drlst: 상장증권(DR상장 (주))
+  lstex_nt: 상장거래소(소재국가)
+  lstpp: 해외상장목적
+  lstprd: 상장예정일자
+  
+  # 상장폐지 관련 필드
+  dlststk_ostk_cnt: 상장폐지주식 종류ㆍ수(주)(보통주식)
+  dlststk_estk_cnt: 상장폐지주식 종류ㆍ수(주)(기타주식)
+  dlstrq_prd: 폐지신청예정일자
+  dlst_prd: 폐지(예정)일자
+  dlst_rs: 폐지사유
+  
+  # 상장일자 및 종목코드 관련 필드
+  lststk_ostk_cnt: 상장주식 종류 및 수(보통주식(주))
+  lststk_estk_cnt: 상장주식 종류 및 수(기타주식(주))
+  stk_cd: 종목 명 (code)
+  lstd: 상장일자
+  cfd: 확인일자
+  
+  # 사채발행 관련 필드
+  bd_tm: 사채의 종류(회차)
+  bd_knd: 사채의 종류(종류)
+  bd_fta: 사채의 권면(전자등록)총액 (원)
+  atcsc_rmislmt: 정관상 잔여 발행한도 (원)
+  
+  # 해외발행 관련 필드
+  ovis_fta: 해외발행(권면(전자등록)총액)
+  ovis_fta_crn: 해외발행(권면(전자등록)총액(통화단위))
+  ovis_ster: 해외발행(기준환율등)
+  ovis_isar: 해외발행(발행지역)
+  ovis_mktnm: 해외발행(해외상장시 시장의 명칭)
+  ovis_ltdtl: 당해 사채의 해외발행과 연계된 대차거래 내역
+  
+  # 사채 이율 및 만기 관련 필드
+  bd_intr_ex: 사채의 이율(표면이자율 (%))
+  bd_intr_sf: 사채의 이율(만기이자율 (%))
+  bd_mtd: 사채만기일
+  bdis_mthn: 사채발행방법
+  
+  # 전환 관련 필드
+  cv_rt: 전환에 관한 사항(전환비율 (%))
+  cv_prc: 전환에 관한 사항(전환가액 (원/주))
+  cvisstk_knd: 전환에 관한 사항(전환에 따라 발행할 주식(종류))
+  cvisstk_cnt: 전환에 관한 사항(전환에 따라 발행할 주식(주식수))
+  cvisstk_tisstk_vs: 전환에 관한 사항(전환에 따라 발행할 주식(주식총수 대비 비율(%)))
+  cvrqpd_bgd: 전환에 관한 사항(전환청구기간(시작일))
+  cvrqpd_edd: 전환에 관한 사항(전환청구기간(종료일))
+  
+  # 전환가액 조정 관련 필드
+  act_mktprcfl_cvprc_lwtrsprc: 전환에 관한 사항(시가하락에 따른 전환가액 조정(최저 조정가액 (원)))
+  act_mktprcfl_cvprc_lwtrsprc_bs: 전환에 관한 사항(시가하락에 따른 전환가액 조정(최저 조정가액 근거))
+  rmislmt_lt70p: 전환에 관한 사항(시가하락에 따른 전환가액 조정(발행당시 전환가액의 70% 미만으로 조정가능한 잔여 발행한도 (원)))
+  
+  # 사채 기타 관련 필드
+  abmg: 합병 관련 사항
+  rpmcmp: 대표주관회사
+  grint: 보증기관
+  
+  # 신주인수권 관련 필드
+  ex_rt: 신주인수권에 관한 사항(행사비율 (%)) / 교환에 관한 사항(교환비율 (%))
+  ex_prc: 신주인수권에 관한 사항(행사가액 (원/주)) / 교환에 관한 사항(교환가액 (원/주))
+  ex_prc_dmth: 신주인수권에 관한 사항(행사가액 결정방법) / 교환에 관한 사항(교환가액 결정방법)
+  bdwt_div_atn: 신주인수권에 관한 사항(사채와 인수권의 분리여부)
+  nstk_pym_mth: 신주인수권에 관한 사항(신주대금 납입방법)
+  nstk_isstk_knd: 신주인수권에 관한 사항(신주인수권 행사에 따라 발행할 주식(종류))
+  nstk_isstk_cnt: 신주인수권에 관한 사항(신주인수권 행사에 따라 발행할 주식(주식수))
+  nstk_isstk_tisstk_vs: 신주인수권에 관한 사항(신주인수권 행사에 따라 발행할 주식(주식총수 대비 비율(%)))
+  expd_bgd: 신주인수권에 관한 사항(권리행사기간(시작일))
+  expd_edd: 신주인수권에 관한 사항(권리행사기간(종료일))
+  
+  # 교환 관련 필드
+  extg: 교환에 관한 사항(교환대상(종류))
+  extg_stkcnt: 교환에 관한 사항(교환대상(주식수))
+  extg_tisstk_vs: 교환에 관한 사항(교환대상(주식총수 대비 비율(%)))
+  exrqpd_bgd: 교환에 관한 사항(교환청구기간(시작일))
+  exrqpd_edd: 교환에 관한 사항(교환청구기간(종료일))
+  
+  # 채무재조정 관련 필드
+  dbtrs_sc: 채무재조정에 관한 사항(채무재조정의 범위)
+  
+  # 자기주식 취득 관련 필드
+  aqpln_stk_ostk: 취득예정주식(주)(보통주식)
+  aqpln_stk_estk: 취득예정주식(주)(기타주식)
+  aqpln_prc_ostk: 취득예정금액(원)(보통주식)
+  aqpln_prc_estk: 취득예정금액(원)(기타주식)
+  aqexpd_bgd: 취득예상기간(시작일)
+  aqexpd_edd: 취득예상기간(종료일)
+  hdexpd_bgd: 보유예상기간(시작일)
+  hdexpd_edd: 보유예상기간(종료일)
+  aq_pp: 취득목적
+  aq_mth: 취득방법
+  cs_iv_bk: 위탁투자중개업자
+  
+  # 취득 전 자기주식 보유현황 관련 필드
+  aq_wtn_div_ostk: 취득 전 자기주식 보유현황(배당가능이익 범위 내 취득(주)(보통주식))
+  aq_wtn_div_ostk_rt: 취득 전 자기주식 보유현황(배당가능이익 범위 내 취득(주)(비율(%)))
+  aq_wtn_div_estk: 취득 전 자기주식 보유현황(배당가능이익 범위 내 취득(주)(기타주식))
+  aq_wtn_div_estk_rt: 취득 전 자기주식 보유현황(배당가능이익 범위 내 취득(주)(비율(%)))
+  eaq_ostk: 취득 전 자기주식 보유현황(기타취득(주)(보통주식))
+  eaq_ostk_rt: 취득 전 자기주식 보유현황(기타취득(주)(비율(%)))
+  eaq_estk: 취득 전 자기주식 보유현황(기타취득(주)(기타주식))
+  eaq_estk_rt: 취득 전 자기주식 보유현황(기타취득(주)(비율(%)))
+  
+  # 자기주식 취득 기타 관련 필드
+  aq_dd: 취득결정일
+  d1_prodlm_ostk: 1일 매수 주문수량 한도(보통주식)
+  d1_prodlm_estk: 1일 매수 주문수량 한도(기타주식)
+  
+  # 자기주식 처분 계약 관련 필드
+  ctr_prc: 계약금액(원)
+  ctr_pd_bgd: 계약기간(시작일)
+  ctr_pd_edd: 계약기간(종료일)
+  ctr_pp: 계약목적
+  ctr_cns_int: 계약체결기관
+  ctr_cns_prd: 계약체결 예정일자
+  
+  # 영업양수도 관련 필드
+  inh_bsn: 양수영업
+  inh_bsn_mc: 양수영업 주요내용
+  inh_prc: 양수가액(원)
+  absn_inh_atn: 영업전부의 양수 여부
+  inh_af: 양수영향
+  inh_prd_ctr_cnsd: 양수예정일자(계약체결일)
+  inh_prd_inh_std: 양수예정일자(양수기준일)
+  inh_pym: 양수대금지급
+  trf_bsn: 양도영업
+  trf_bsn_mc: 양도영업 주요내용
+  trf_prc: 양도가액(원)
+  trf_af: 양도영향
+  trf_prd_ctr_cnsd: 양도예정일자(계약체결일)
+  trf_prd_trf_std: 양도예정일자(양도기준일)
+  trf_pym: 양도대금지급
+  
+  # 재무내용 관련 필드
+  ast_inh_bsn: 재무내용(원)(자산액(양수대상 영업부문(A)))
+  ast_cmp_all: 재무내용(원)(자산액(당사전체(B)))
+  ast_rt: 재무내용(원)(자산액(비중(%)(A/B)))
+  sl_inh_bsn: 재무내용(원)(매출액(양수대상 영업부문(A)))
+  sl_cmp_all: 재무내용(원)(매출액(당사전체(B)))
+  sl_rt: 재무내용(원)(매출액(비중(%)(A/B)))
+  dbt_inh_bsn: 재무내용(원)(부채액(양수대상 영업부문(A)))
+  dbt_cmp_all: 재무내용(원)(부채액(당사전체(B)))
+  dbt_rt: 재무내용(원)(부채액(비중(%)(A/B)))
+  ast_trf_bsn: 재무내용(원)(자산액(양도대상 영업부문(A)))
+  sl_trf_bsn: 재무내용(원)(매출액(양도대상 영업부문(A)))
+  
+  # 자산양수도 관련 필드
+  ast_sen: 자산구분
+  ast_nm: 자산명
+  inh_prd_rgs_prd: 양수예정일자(등기예정일)
+  trf_prd_rgs_prd: 양도예정일자(등기예정일)
+  
+  # 주주총회 관련 필드
+  gmtsck_spd_atn: 주주총회 특별결의 여부
+  gmtsck_prd: 주주총회 예정일자
+  
+  # 양수후/양도후 소유 관련 필드
+  atinh_owstkcnt: 양수후 소유주식수 및 지분비율(소유주식수(주))
+  atinh_eqrt: 양수후 소유주식수 및 지분비율(지분비율(%))
+  attrf_owstkcnt: 양도후 소유주식수 및 지분비율(소유주식수(주))
+  attrf_eqrt: 양도후 소유주식수 및 지분비율(지분비율(%))
+  
+  # 발행회사/사채권 발행회사 관련 필드
+  iscmp_cmpnm: 발행회사(회사명)
+  iscmp_nt: 발행회사(국적)
+  iscmp_rp: 발행회사(대표자)
+  iscmp_cpt: 발행회사(자본금(원))
+  iscmp_rl_cmpn: 발행회사(회사와 관계)
+  iscmp_tisstk: 발행회사(발행주식 총수(주))
+  iscmp_mbsn: 발행회사(주요사업)
+  bdiscmp_cmpnm: 사채권 발행회사(회사명)
+  bdiscmp_nt: 사채권 발행회사(국적)
+  bdiscmp_rp: 사채권 발행회사(대표자)
+  bdiscmp_cpt: 사채권 발행회사(자본금(원))
+  bdiscmp_rl_cmpn: 사채권 발행회사(회사와 관계)
+  bdiscmp_tisstk: 사채권 발행회사(발행주식 총수(주))
+  bdiscmp_mbsn: 사채권 발행회사(주요사업)
+  
+  # 주권 관련 사채권 및 기타 필드
+  stkrtbd_kndn: 주권 관련 사채권의 종류
+  inhdtl_bd_fta: 양수내역(사채의 권면(전자등록)총액(원))
+  trfdtl_bd_fta: 양도내역(사채의 권면(전자등록)총액(원))
+  aqd: 취득일자
+  
+  # 주식교환·이전 관련 필드
+  extr_sen: 구분
+  extr_stn: 교환ㆍ이전 형태
+  extr_pp: 교환ㆍ이전 목적
+  extr_rt: 교환ㆍ이전 비율
+  extr_rt_bs: 교환ㆍ이전 비율 산출근거
+  atextr_cpcmpnm: 교환ㆍ이전 후 완전모회사명
+  
+  # 교환·이전 대상법인 관련 필드
+  extr_tgcmp_cmpnm: 교환ㆍ이전 대상법인(회사명)
+  extr_tgcmp_rp: 교환ㆍ이전 대상법인(대표자)
+  extr_tgcmp_mbsn: 교환ㆍ이전 대상법인(주요사업)
+  extr_tgcmp_rl_cmpn: 교환ㆍ이전 대상법인(회사와의 관계)
+  extr_tgcmp_tisstk_ostk: 교환ㆍ이전 대상법인(발행주식총수(주)(보통주식))
+  extr_tgcmp_tisstk_cstk: 교환ㆍ이전 대상법인(발행주식총수(주)(종류주식))
+  
+  # 교환·이전 일정 관련 필드
+  extrsc_extrctrd: 교환ㆍ이전일정(교환ㆍ이전계약일)
+  extrsc_shddstd: 교환ㆍ이전일정(주주확정기준일)
+  extrsc_shclspd_bgd: 교환ㆍ이전일정(주주명부 폐쇄기간(시작일))
+  extrsc_shclspd_edd: 교환ㆍ이전일정(주주명부 폐쇄기간(종료일))
+  extrsc_extrop_rcpd_bgd: 교환ㆍ이전일정(주식교환ㆍ이전 반대의사 통지접수기간(시작일))
+  extrsc_extrop_rcpd_edd: 교환ㆍ이전일정(주식교환ㆍ이전 반대의사 통지접수기간(종료일))
+  extrsc_gmtsck_prd: 교환ㆍ이전일정(주주총회 예정일자)
+  extrsc_aprskh_expd_bgd: 교환ㆍ이전일정(주식매수청구권 행사기간(시작일))
+  extrsc_aprskh_expd_edd: 교환ㆍ이전일정(주식매수청구권 행사기간(종료일))
+  extrsc_osprpd_bgd: 교환ㆍ이전일정(구주권제출기간(시작일))
+  extrsc_osprpd_edd: 교환ㆍ이전일정(구주권제출기간(종료일))
+  extrsc_trspprpd: 교환ㆍ이전일정(매매거래정지예정기간)
+  extrsc_trspprpd_bgd: 교환ㆍ이전일정(매매거래정지예정기간(시작일))
+  extrsc_trspprpd_edd: 교환ㆍ이전일정(매매거래정지예정기간(종료일))
+  extrsc_extrdt: 교환ㆍ이전일정(교환ㆍ이전일자)
+  extrsc_nstkdlprd: 교환ㆍ이전일정(신주권교부예정일)
+  extrsc_nstklstprd: 교환ㆍ이전일정(신주의 상장예정일)
+
+# 법인구분 코드 매핑
+corp_cls_mapping:
+  Y: 유가증권
+  K: 코스닥
+  N: 코넥스
+  E: 기타
