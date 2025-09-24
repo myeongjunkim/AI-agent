@@ -141,13 +141,13 @@ def _apply_field_mappings(data):
         return data
 
 
-def _serialize_dataframe(df, apply_mapping=False, drop_na=True) -> str:
+def _serialize_dataframe(df, apply_mapping=False, drop_na_values=True) -> str:
     """DataFrame, dict, list 등을 JSON 문자열로 변환
     
     Args:
         df: 변환할 데이터
         apply_mapping: 필드 매핑 적용 여부
-        drop_na: NaN 값이 있는 행 제거 여부 (기본값: True)
+        drop_na_values: 각 레코드에서 NaN 값을 가진 필드를 제외할지 여부
     """
     try:
         if df is None:
@@ -155,14 +155,21 @@ def _serialize_dataframe(df, apply_mapping=False, drop_na=True) -> str:
         
         # pandas DataFrame인 경우
         if hasattr(df, 'empty'):
-            # NaN 값이 있는 행 제거 (옵션)
-            if drop_na and hasattr(df, 'dropna'):
-                df = df.dropna()
-                
             if df.empty:
                 return json.dumps({"result": "데이터가 없습니다."}, ensure_ascii=False)
+                
             # DataFrame을 dict로 변환
-            result = df.to_dict('records')
+            if drop_na_values:
+                # NaN 값을 가진 필드를 제외하고 변환
+                import pandas as pd
+                result = []
+                for _, row in df.iterrows():
+                    # NaN이 아닌 값만 포함하는 dict 생성
+                    record = {k: v for k, v in row.to_dict().items() 
+                             if not (pd.isna(v) if hasattr(pd, 'isna') else v != v)}
+                    result.append(record)
+            else:
+                result = df.to_dict('records')
             # 필드 매핑 적용
             if apply_mapping:
                 result = _apply_field_mappings(result)
