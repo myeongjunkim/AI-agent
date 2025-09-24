@@ -8,7 +8,6 @@ import re
 import json
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
-from pathlib import Path
 
 from utils.logging import get_logger
 
@@ -34,17 +33,6 @@ class DocTypeMapper:
         """
         self.llm_client = llm_client
         self.fallback_mappings = self._initialize_mappings()
-        self.prompt_template = self._load_prompt_template()
-    
-    def _load_prompt_template(self) -> Optional[str]:
-        """프롬프트 템플릿 로드"""
-        prompt_path = Path(__file__).parent.parent.parent / 'prompts' / 'doc_type_mapping.txt'
-        try:
-            with open(prompt_path, 'r', encoding='utf-8') as f:
-                return f.read()
-        except Exception as e:
-            logger.warning(f"프롬프트 파일 로드 실패: {e}")
-            return None
         
     def _initialize_mappings(self) -> List[DocTypeMapping]:
         """기본 매핑 테이블 (LLM 실패 시 폴백)"""
@@ -113,34 +101,38 @@ class DocTypeMapper:
         Returns:
             [(문서유형코드, 신뢰도)] 리스트
         """
-        # LLM이 사용 가능한 경우
+        # LLM이 사용 가능한 경우 - 개선된 컨텍스트 기반 분석
         if self.llm_client:
             try:
-                llm_results = await self._analyze_with_llm(query, langextract_result)
+                llm_results = await self._analyze_with_llm_context(query, langextract_result)
                 if llm_results:
                     return llm_results[:max_types]
             except Exception as e:
-                logger.warning(f"LLM analysis failed, falling back to basic rules: {e}")
+                logger.warning(f"LLM analysis failed, falling back to rule-based mapping: {e}")
         
-        # LLM 실패 시 기본 규칙 사용
-        return self._fallback_mapping_with_context(query, langextract_result, max_types)
+        # LLM 실패 시 향상된 규칙 기반 매핑 사용
+        return self._enhanced_fallback_mapping(query, langextract_result, max_types)
     
     def map_query_to_doc_types_sync(self, query: str, langextract_result: Optional[Dict] = None, max_types: int = 3) -> List[Tuple[str, float]]:
         """동기 버전 - LLM 호출을 동기적으로 수행"""
-        # LLM이 사용 가능한 경우
+        # LLM이 사용 가능한 경우 - 개선된 컨텍스트 기반 분석
         if self.llm_client:
             try:
-                llm_results = self._analyze_with_llm_sync(query, langextract_result)
+                llm_results = self._analyze_with_llm_context_sync(query, langextract_result)
                 if llm_results:
                     return llm_results[:max_types]
             except Exception as e:
-                logger.warning(f"LLM analysis failed, falling back to basic rules: {e}")
+                logger.warning(f"LLM analysis failed, falling back to rule-based mapping: {e}")
         
-        # LLM 실패 시 기본 규칙 사용
-        return self._fallback_mapping_with_context(query, langextract_result, max_types)
+        # LLM 실패 시 향상된 규칙 기반 매핑 사용
+        return self._enhanced_fallback_mapping(query, langextract_result, max_types)
     
-    async def _analyze_with_llm(self, query: str, langextract_result: Optional[Dict] = None) -> List[Tuple[str, float]]:
-        """LLM을 사용한 쿼리 분석 (비동기)"""
+    
+    async def _analyze_with_llm_context(self, query: str, langextract_result: Optional[Dict] = None) -> List[Tuple[str, float]]:
+        """
+        컨텍스트 기반 LLM 분석 (비동기)
+        _initialize_mappings의 정보를 컨텍스트로 제공하여 더 정확한 매핑 수행
+        """
         if not self.llm_client:
             return []
             
@@ -148,25 +140,42 @@ class DocTypeMapper:
             import os
             model_name = os.getenv("LLM_MODEL", "gpt-3.5-turbo")
             
-            # 프롬프트 템플릿 사용
-            if self.prompt_template:
-                prompt = self._build_prompt(query, langextract_result)
-            else:
-                prompt = f"""
-다음 쿼리를 분석하여 적절한 DART 문서유형을 선택하세요.
-쿼리: {query}
+            # 매핑 컨텍스트 생성
+            context = self._build_mapping_context()
+            
+            # 파싱 결과 정리
+            parsed_info = self._format_langextract_result(langextract_result)
+            
+            # 개선된 프롬프트 구성
+            prompt = f"""
+다음 사용자 쿼리를 분석하여 가장 적절한 DART 문서유형을 선택하세요.
 
-JSON 형식으로 답하세요: [{"code": "문서코드", "confidence": 0.0-1.0}]
+**사용자 쿼리**: {query}
+
+**파싱된 정보**:
+{parsed_info}
+
+**사용 가능한 DART 문서유형**:
+{context}
+
+**지시사항**:
+1. 사용자 쿼리의 의도와 파싱된 정보를 종합적으로 분석하세요
+2. 위의 문서유형 중에서 가장 적절한 것을 최대 3개 선택하세요
+3. 각 선택에 대한 신뢰도(0.0-1.0)를 제공하세요
+4. 반드시 JSON 형식으로 답변하세요
+
+**응답 형식**:
+[{{"code": "문서코드", "confidence": 0.0-1.0, "reason": "선택 이유"}}]
 """
             
             response = self.llm_client.chat.completions.create(
                 model=model_name,
                 messages=[
-                    {"role": "system", "content": "You are a Korean financial document classification expert."},
+                    {"role": "system", "content": "You are a DART document classification expert. Analyze queries and select the most appropriate document types based on the given context."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.1,
-                max_tokens=200
+                max_tokens=300
             )
             
             content = response.choices[0].message.content.strip()
@@ -175,15 +184,19 @@ JSON 형식으로 답하세요: [{"code": "문서코드", "confidence": 0.0-1.0}
             json_match = re.search(r'\[.*\]', content, re.DOTALL)
             if json_match:
                 result = json.loads(json_match.group())
-                return [(item["code"], item["confidence"]) for item in result]
+                results = [(item["code"], item["confidence"]) for item in result if item.get("code") and item.get("confidence")]
+                logger.info(f"LLM 컨텍스트 분석 결과: {results}")
+                return results
                 
         except Exception as e:
-            logger.error(f"LLM analysis error: {e}")
+            logger.error(f"LLM context analysis error: {e}")
             
         return []
-    
-    def _analyze_with_llm_sync(self, query: str, langextract_result: Optional[Dict] = None) -> List[Tuple[str, float]]:
-        """LLM을 사용한 쿼리 분석 (동기)"""
+
+    def _analyze_with_llm_context_sync(self, query: str, langextract_result: Optional[Dict] = None) -> List[Tuple[str, float]]:
+        """
+        컨텍스트 기반 LLM 분석 (동기)
+        """
         if not self.llm_client:
             return []
             
@@ -191,25 +204,42 @@ JSON 형식으로 답하세요: [{"code": "문서코드", "confidence": 0.0-1.0}
             import os
             model_name = os.getenv("LLM_MODEL", "gpt-3.5-turbo")
             
-            # 프롬프트 템플릿 사용
-            if self.prompt_template:
-                prompt = self._build_prompt(query, langextract_result)
-            else:
-                prompt = f"""
-다음 쿼리를 분석하여 적절한 DART 문서유형을 선택하세요.
-쿼리: {query}
+            # 매핑 컨텍스트 생성
+            context = self._build_mapping_context()
+            
+            # 파싱 결과 정리
+            parsed_info = self._format_langextract_result(langextract_result)
+            
+            # 개선된 프롬프트 구성
+            prompt = f"""
+다음 사용자 쿼리를 분석하여 가장 적절한 DART 문서유형을 선택하세요.
 
-JSON 형식으로 답하세요: [{"code": "문서코드", "confidence": 0.0-1.0}]
+**사용자 쿼리**: {query}
+
+**파싱된 정보**:
+{parsed_info}
+
+**사용 가능한 DART 문서유형**:
+{context}
+
+**지시사항**:
+1. 사용자 쿼리의 의도와 파싱된 정보를 종합적으로 분석하세요
+2. 위의 문서유형 중에서 가장 적절한 것을 최대 3개 선택하세요
+3. 각 선택에 대한 신뢰도(0.0-1.0)를 제공하세요
+4. 반드시 JSON 형식으로 답변하세요
+
+**응답 형식**:
+[{{"code": "문서코드", "confidence": 0.0-1.0, "reason": "선택 이유"}}]
 """
             
             response = self.llm_client.chat.completions.create(
                 model=model_name,
                 messages=[
-                    {"role": "system", "content": "You are a Korean financial document classification expert."},
+                    {"role": "system", "content": "You are a DART document classification expert. Analyze queries and select the most appropriate document types based on the given context."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.1,
-                max_tokens=200
+                max_tokens=300
             )
             
             content = response.choices[0].message.content.strip()
@@ -218,63 +248,63 @@ JSON 형식으로 답하세요: [{"code": "문서코드", "confidence": 0.0-1.0}
             json_match = re.search(r'\[.*\]', content, re.DOTALL)
             if json_match:
                 result = json.loads(json_match.group())
-                return [(item["code"], item["confidence"]) for item in result]
+                results = [(item["code"], item["confidence"]) for item in result if item.get("code") and item.get("confidence")]
+                logger.info(f"LLM 컨텍스트 분석 결과: {results}")
+                return results
                 
         except Exception as e:
-            logger.error(f"LLM analysis error: {e}")
+            logger.error(f"LLM context analysis error: {e}")
             
         return []
-    
-    def _build_prompt(self, query: str, langextract_result: Optional[Dict] = None) -> str:
-        """
-        LangExtract 결과를 포함한 프롬프트 생성
+
+    def _build_mapping_context(self) -> str:
+        """매핑 컨텍스트 구성 - _initialize_mappings의 정보를 문자열로 변환"""
+        context_lines = []
         
-        Args:
-            query: 원본 쿼리
-            langextract_result: LangExtract 파싱 결과
-            
-        Returns:
-            완성된 프롬프트
-        """
-        prompt = self.prompt_template.replace('{query}', query)
+        for mapping in self.fallback_mappings:
+            keywords_str = ", ".join(mapping.keywords)
+            context_lines.append(f"- {mapping.code}: {mapping.name}")
+            context_lines.append(f"  키워드: {keywords_str}")
+            context_lines.append("")
         
-        # LangExtract 결과가 있으면 추가
-        if langextract_result:
-            context_parts = []
-            
-            # 추출된 문서유형
-            if langextract_result.get('doc_types'):
-                doc_names = [dt.get('name', '') for dt in langextract_result['doc_types'] if dt.get('name')]
-                if doc_names:
-                    context_parts.append(f"추출된 문서유형: {', '.join(doc_names)}")
-            
-            # 추출된 키워드
-            if langextract_result.get('keywords'):
-                keywords = [kw.get('text', '') if isinstance(kw, dict) else str(kw) 
-                           for kw in langextract_result['keywords']]
-                if keywords:
-                    context_parts.append(f"관련 키워드: {', '.join(keywords)}")
-            
-            # 기업명
-            if langextract_result.get('companies'):
-                context_parts.append(f"기업: {', '.join(langextract_result['companies'])}")
-            
-            # 날짜 표현
-            if langextract_result.get('date_expressions'):
-                date_texts = [de.get('text', '') if isinstance(de, dict) else str(de) 
-                             for de in langextract_result['date_expressions']]
-                if date_texts:
-                    context_parts.append(f"기간: {', '.join(date_texts)}")
-            
-            if context_parts:
-                context = "\n\nLangExtract 분석 결과:\n" + "\n".join(context_parts)
-                prompt = prompt.replace('\n\nJSON 형식으로', context + '\n\nJSON 형식으로')
+        return "\n".join(context_lines)
+
+    def _format_langextract_result(self, langextract_result: Optional[Dict]) -> str:
+        """LangExtract 결과를 읽기 쉬운 형태로 포맷"""
+        if not langextract_result:
+            return "파싱된 정보가 없습니다."
         
-        return prompt
-    
-    def _fallback_mapping_with_context(self, query: str, langextract_result: Optional[Dict], max_types: int) -> List[Tuple[str, float]]:
+        info_parts = []
+        
+        # 추출된 문서유형
+        if langextract_result.get('doc_types'):
+            doc_names = [dt.get('name', '') for dt in langextract_result['doc_types'] if dt.get('name')]
+            if doc_names:
+                info_parts.append(f"추출된 문서유형: {', '.join(doc_names)}")
+        
+        # 추출된 키워드
+        if langextract_result.get('keywords'):
+            keywords = [kw.get('text', '') if isinstance(kw, dict) else str(kw) 
+                       for kw in langextract_result['keywords']]
+            if keywords:
+                info_parts.append(f"관련 키워드: {', '.join(keywords)}")
+        
+        # 기업명
+        if langextract_result.get('companies'):
+            info_parts.append(f"기업: {', '.join(langextract_result['companies'])}")
+        
+        # 날짜 표현
+        if langextract_result.get('date_expressions'):
+            date_texts = [de.get('text', '') if isinstance(de, dict) else str(de) 
+                         for de in langextract_result['date_expressions']]
+            if date_texts:
+                info_parts.append(f"기간: {', '.join(date_texts)}")
+        
+        return "\n".join(info_parts) if info_parts else "특별한 파싱 정보가 없습니다."
+
+    def _enhanced_fallback_mapping(self, query: str, langextract_result: Optional[Dict], max_types: int) -> List[Tuple[str, float]]:
         """
-        LangExtract 결과를 활용한 규칙 기반 매핑
+        향상된 규칙 기반 매핑 - doc_types와 keywords를 우선적으로 고려
         
         Args:
             query: 원본 쿼리
@@ -284,43 +314,23 @@ JSON 형식으로 답하세요: [{"code": "문서코드", "confidence": 0.0-1.0}
         Returns:
             [(문서유형코드, 신뢰도)] 리스트
         """
-        query_lower = query.lower()
+        logger.info("향상된 규칙 기반 매핑 시작")
         scores = {}
         
-        # LangExtract에서 추출한 문서유형이 있으면 우선 처리
+        # 1. LangExtract doc_types 우선 처리 (가장 높은 가중치)
         if langextract_result and langextract_result.get('doc_types'):
             for doc in langextract_result['doc_types']:
                 doc_name = doc.get('name', '').lower()
-                logger.info(f"LangExtract 문서유형: '{doc_name}'")
+                logger.info(f"LangExtract 문서유형 분석: '{doc_name}'")
                 
-                # 직접 문서유형명 매칭 (정확한 매칭 우선)
-                for mapping in self.fallback_mappings:
-                    # 정확한 문서명 매칭
-                    if mapping.name.lower() in doc_name or doc_name in mapping.name.lower():
-                        if mapping.code not in scores:
-                            scores[mapping.code] = 0
-                        scores[mapping.code] += mapping.priority * 5  # 정확한 매칭은 최고 가중치
-                        logger.info(f"  → 정확한 매칭: {mapping.code} ({mapping.name})")
-                        continue
-                    
-                    # 키워드 매칭
-                    for keyword in mapping.keywords:
-                        if keyword in doc_name:
-                            if mapping.code not in scores:
-                                scores[mapping.code] = 0
-                            scores[mapping.code] += mapping.priority * 3  # LangExtract 키워드 매칭
-                            logger.info(f"  → 키워드 매칭: {mapping.code} ({keyword})")
-                            break
-        
-        # 원본 쿼리에서도 매핑
-        for mapping in self.fallback_mappings:
-            for keyword in mapping.keywords:
-                if keyword in query_lower:
-                    if mapping.code not in scores:
-                        scores[mapping.code] = 0
-                    scores[mapping.code] += mapping.priority
-        
-        # LangExtract 키워드도 고려
+                # 정확한 문서명 매칭
+                best_match = self._find_best_document_match(doc_name)
+                if best_match:
+                    code, confidence = best_match
+                    scores[code] = scores.get(code, 0) + confidence * 100  # 최고 가중치
+                    logger.info(f"  → 문서명 매칭: {code} (신뢰도: {confidence:.3f})")
+
+        # 2. LangExtract keywords 처리
         if langextract_result and langextract_result.get('keywords'):
             for kw in langextract_result['keywords']:
                 kw_text = kw.get('text', '') if isinstance(kw, dict) else str(kw)
@@ -328,55 +338,66 @@ JSON 형식으로 답하세요: [{"code": "문서코드", "confidence": 0.0-1.0}
                 
                 for mapping in self.fallback_mappings:
                     for keyword in mapping.keywords:
-                        if keyword in kw_lower:
+                        if keyword in kw_lower or kw_lower in keyword:
                             if mapping.code not in scores:
                                 scores[mapping.code] = 0
-                            scores[mapping.code] += mapping.priority * 0.5  # 키워드는 낮은 가중치
+                            scores[mapping.code] += mapping.priority * 2  # 키워드 매칭
+                            logger.info(f"  → 키워드 매칭: {mapping.code} (키워드: {kw_text})")
+
+        # 3. 원본 쿼리에서도 매핑 (낮은 가중치)
+        query_lower = query.lower()
+        for mapping in self.fallback_mappings:
+            for keyword in mapping.keywords:
+                if keyword in query_lower:
+                    if mapping.code not in scores:
+                        scores[mapping.code] = 0
+                    scores[mapping.code] += mapping.priority * 0.5  # 낮은 가중치
         
         # 점수 정규화 및 정렬
         if scores:
             max_score = max(scores.values())
-            results = [(code, score/max_score) for code, score in scores.items()]
+            results = [(code, min(score/max_score, 1.0)) for code, score in scores.items()]
             results.sort(key=lambda x: x[1], reverse=True)
-            logger.info(f"DocType 매핑 결과: {results[:max_types]}")
+            logger.info(f"향상된 규칙 매핑 결과: {results[:max_types]}")
             return results[:max_types]
         
-        # 결과가 없으면 기본값으로 주요사항보고서 반환 (기존 로직)
-        logger.warning("문서유형 매핑 실패, 기본값 사용: B001 (주요사항보고서)")
+        # 결과가 없으면 기본값 반환
+        logger.warning("향상된 규칙 매핑 실패, 기본값 사용: B001 (주요사항보고서)")
         return [("B001", 0.3)]
-    
-    def _fallback_mapping(self, query: str, max_types: int) -> List[Tuple[str, float]]:
-        """레거시 폴백 매핑 (하위 호환성)"""
-        """LLM 없이 기본 규칙 기반 매핑"""
-        query_lower = query.lower()
-        scores = {}
+
+    def _find_best_document_match(self, doc_name: str) -> Optional[Tuple[str, float]]:
+        """
+        문서명과 가장 일치도가 높은 매핑 찾기
+        
+        Args:
+            doc_name: 문서명 (소문자)
+            
+        Returns:
+            (코드, 신뢰도) 또는 None
+        """
+        best_match = None
+        best_score = 0.0
         
         for mapping in self.fallback_mappings:
-            score = 0.0
+            mapping_name_lower = mapping.name.lower()
             
+            # 정확한 매칭
+            if doc_name == mapping_name_lower or doc_name in mapping_name_lower or mapping_name_lower in doc_name:
+                confidence = 1.0 if doc_name == mapping_name_lower else 0.9
+                if confidence > best_score:
+                    best_match = (mapping.code, confidence)
+                    best_score = confidence
+                    
+            # 키워드 매칭
             for keyword in mapping.keywords:
-                if keyword.lower() in query_lower:
-                    score += 2.0
-                elif len(keyword) >= 3 and keyword.lower()[:3] in query_lower:
-                    score += 1.0
-            
-            if score > 0:
-                score *= (1 + mapping.priority / 20)
-                scores[mapping.code] = score
+                if keyword in doc_name or doc_name in keyword:
+                    confidence = 0.8
+                    if confidence > best_score:
+                        best_match = (mapping.code, confidence)
+                        best_score = confidence
         
-        # 정렬 및 정규화
-        sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-        results = []
-        
-        for code, score in sorted_scores[:max_types]:
-            confidence = min(score / 10, 1.0)
-            results.append((code, confidence))
-        
-        # 기본값
-        if not results:
-            results = [("B001", 0.3)]
-            
-        return results
+        return best_match
+    
     
     def get_doc_type_name(self, code: str) -> str:
         """문서유형 코드의 이름 반환"""
