@@ -64,6 +64,58 @@ class DocumentFilter:
             logger.error(f"Failed to load filter prompt template: {e}")
         return None
     
+    def _parse_filter_response(self, response_text: str) -> Optional[Dict[str, Any]]:
+        """LLM 응답을 파싱하여 결과 추출"""
+        try:
+            # 1. 표준 JSON 파싱 시도
+            json_match = re.search(r'\{[\s\S]*\}', response_text)
+            if json_match:
+                try:
+                    return json.loads(json_match.group())
+                except json.JSONDecodeError:
+                    pass
+            
+            # 2. 코드 블록 안의 JSON 파싱 시도
+            code_block_match = re.search(r'```(?:json)?\s*(\{[\s\S]*?\})\s*```', response_text)
+            if code_block_match:
+                try:
+                    return json.loads(code_block_match.group(1))
+                except json.JSONDecodeError:
+                    pass
+            
+            # 3. relevant_indices 패턴 직접 추출
+            indices_match = re.search(r'relevant_indices["\s]*:[\s]*\[([^\]]*)\]', response_text)
+            if indices_match:
+                try:
+                    indices_str = indices_match.group(1)
+                    indices = [int(x.strip()) for x in indices_str.split(',') if x.strip().isdigit()]
+                    
+                    # reason 패턴도 찾기
+                    reason_match = re.search(r'reason["\s]*:[\s]*["\']([^"\']*)["\']', response_text)
+                    reason = reason_match.group(1) if reason_match else "자동 추출됨"
+                    
+                    return {
+                        "relevant_indices": indices,
+                        "reason": reason
+                    }
+                except (ValueError, AttributeError):
+                    pass
+            
+            # 4. 숫자만 추출하여 인덱스로 사용
+            numbers = re.findall(r'\b(\d+)\b', response_text)
+            if numbers:
+                indices = [int(x) for x in numbers[:10]]  # 최대 10개만 
+                return {
+                    "relevant_indices": indices,
+                    "reason": "응답에서 숫자 패턴 추출"
+                }
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error parsing filter response: {e}")
+            return None
+    
     async def _llm_based_filtering(
         self,
         query: str,
@@ -136,24 +188,26 @@ class DocumentFilter:
                     max_tokens=300
                 )
                 
-                # 응답 파싱
+                # 응답 파싱 - 더 견고한 파싱 로직
                 response_text = response.choices[0].message.content
-                json_match = re.search(r'\{[\s\S]*\}', response_text)
+                logger.debug(f"LLM filter response: {response_text[:500]}...")  # 응답 로깅
                 
-                if json_match:
-                    result_data = json.loads(json_match.group())
-                    relevant_indices = result_data.get("relevant_indices", [])
+                parsed_result = self._parse_filter_response(response_text)
+                
+                if parsed_result:
+                    relevant_indices = parsed_result.get("relevant_indices", [])
                     
                     # 선별된 문서 추가
                     for idx in relevant_indices:
                         if 0 <= idx < len(batch):
                             filtered_docs.append(batch[idx])
                     
-                    logger.debug(f"Batch filtering: {len(relevant_indices)}/{len(batch)} documents selected. "
-                               f"Reason: {result_data.get('reason', 'N/A')}")
+                    logger.info(f"Batch filtering: {len(relevant_indices)}/{len(batch)} documents selected. "
+                               f"Reason: {parsed_result.get('reason', 'N/A')}")
                 else:
                     # 파싱 실패시 상위 문서 포함
-                    logger.warning("Failed to parse filter response, including top documents")
+                    logger.warning(f"Failed to parse filter response: {response_text[:200]}...")
+                    logger.warning("Including top documents as fallback")
                     filtered_docs.extend(batch[:5])
             
             # 필터링 결과가 없으면 상위 N개 반환

@@ -12,30 +12,6 @@ from utils.content_cleaner import clean_content, clean_for_llm
 
 logger = get_logger("document_fetcher_v2")
 
-# 문서 유형별 상세 API 매핑
-DETAILED_API_MAPPING = {
-    # 정기보고서 (A로 시작)
-    "A001": "periodic_report",  # 사업보고서
-    "A002": "periodic_report",  # 반기보고서  
-    "A003": "periodic_report",  # 분기보고서
-    
-    # 주요사항보고서 (B로 시작)
-    "B001": "major_report",  # 주요사항보고서
-    "B002": "major_report",  # 주요경영사항
-    "B003": "major_report",  # 최대주주등과의거래
-    
-    # 증권신고서 (C로 시작)
-    "C001": "securities_registration",  # 증권신고(지분증권)
-    "C002": "securities_registration",  # 증권신고(채무증권)
-    "C003": "securities_registration",  # 증권신고(파생결합증권)
-    
-    # 지분공시 (D로 시작)
-    "D001": "ownership_disclosure",  # 대량보유상황보고서
-    "D002": "ownership_disclosure",  # 임원주요주주보고서
-    "D003": "ownership_disclosure",  # 의결권대리행사
-    "D004": "ownership_disclosure",  # 공개매수
-}
-
 
 class DocumentFetcherV2:
     """DART 문서 내용 가져오기 (개선된 버전)"""
@@ -164,9 +140,8 @@ class DocumentFetcherV2:
             return "securities_registration"
         elif report_type.startswith("D"):
             return "ownership_disclosure"
-        
-        # 정확한 매핑 확인
-        return DETAILED_API_MAPPING.get(report_type)
+        else:
+            return None
     
     async def _fetch_structured_data(
         self,
