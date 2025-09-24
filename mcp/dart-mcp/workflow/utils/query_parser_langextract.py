@@ -169,9 +169,6 @@ class QueryParserLangExtract:
     
     def _parse_with_langextract(self, query: str) -> Dict[str, Any]:
         """LangExtract를 사용한 파싱"""
-        if not self.api_key:
-            print("API 키가 설정되지 않아 폴백 파서를 사용합니다.")
-            return self._fallback_parse(query)
         
         # LangExtract로 정보 추출
         if self.use_ollama:
