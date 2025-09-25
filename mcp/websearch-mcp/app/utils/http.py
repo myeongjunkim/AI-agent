@@ -1,8 +1,8 @@
-from __future__ import annotations
 
 import httpx
 from typing import Dict
-from ..config import settings
+from app.config import settings
+
 
 
 def default_headers(lang: str) -> Dict[str, str]:
@@ -17,5 +17,6 @@ def default_headers(lang: str) -> Dict[str, str]:
 def build_async_client(lang: str) -> httpx.AsyncClient:
     timeout = httpx.Timeout(settings.TIMEOUT_SECONDS)
     return httpx.AsyncClient(timeout=timeout, headers=default_headers(lang), follow_redirects=True)
+
 
 

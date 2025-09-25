@@ -9,6 +9,13 @@ class BaseSearchRequest(BaseModel):
     query: str
     limit: int = 50
     
+class UrlSearchRequest(BaseModel):
+    urls: List[str]
+
+# class UrlSearchResponse(BaseModel):
+    
+
+
 class SearchRequest(BaseModel):
     query: str
     channels: List[str] = Field(default_factory=lambda: ["news", "web"])  # news 우선
@@ -44,3 +51,7 @@ class SearchResponse(BaseModel):
 class BaseSearchResponse(BaseModel):
     query: str
     results: List[SearchItem]
+
+class UrlSearchResponse(BaseModel):
+    urls: List[str]
+    results: List[str]

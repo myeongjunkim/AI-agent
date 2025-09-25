@@ -1,5 +1,5 @@
 from typing import List
-import feedparser
+import feedparser # type: ignore
 from feedparser import FeedParserDict
 from .base import SearchItem
 from urllib.parse import urlencode
