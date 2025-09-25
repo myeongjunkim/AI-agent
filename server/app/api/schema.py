@@ -14,3 +14,18 @@ class ChatResponse(BaseModel):
     result: dict
     mcp_result: List[dict]
     key_info: List[dict]
+
+
+class SearchRequest(BaseModel):
+    query: str
+
+
+
+class SearchResponse(BaseModel):
+    status: str
+    query: str
+    expanded_query: dict
+    statistics: dict
+    documents: list[dict]
+    timestamp: str
+    
