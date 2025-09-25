@@ -66,6 +66,8 @@ LANGFUSE_HOST=http://localhost:3000
 cd server
 uv sync
 uv run fastapi dev
+(운영환경에서는 --host 0.0.0.0 추가하여 실행)
+
 ```
 
 엔드포인트: `POST http://localhost:8000/api/v1/chat/`
